@@ -55,6 +55,7 @@ export function SongLibrary({
   async function show(value: boolean) {
     setOpen(value);
     if (value) {
+      setError("");
       try {
         await refresh();
         const response = await fetch("/songs/catalog.json");
@@ -119,6 +120,10 @@ export function SongLibrary({
     [name, t(name)].some((text) =>
       text.toLocaleLowerCase().includes(query.toLocaleLowerCase()),
     );
+  const matchingEntries = entries.filter((entry) => match(entry.song.name));
+  const matchingCatalog = catalog.filter(
+    (song) => match(song.name) || match(song.composer),
+  );
   return (
     <Dialog open={open} onOpenChange={(value) => void show(value)}>
       <DialogTrigger asChild>
@@ -187,20 +192,16 @@ export function SongLibrary({
               "Если сайт запрещает загрузку по ссылке, скачайте файл и перетащите сюда. Из MuseScore экспортируйте MIDI. PDF нужно сначала распознать или преобразовать.",
             )}
           </p>
-          {t(
-            busy && (
-              <p role="status" className="flex items-center gap-2 text-sm">
-                <LoaderCircle className="size-4 animate-spin" />
-                {t("Добавляю произведение…")}
-              </p>
-            ),
+          {busy && (
+            <p role="status" className="flex items-center gap-2 text-sm">
+              <LoaderCircle className="size-4 animate-spin" />
+              {t("Добавляю произведение…")}
+            </p>
           )}
-          {t(
-            error && (
-              <p role="alert" className="text-sm text-destructive">
-                {t(error)}
-              </p>
-            ),
+          {error && (
+            <p role="alert" className="text-sm text-destructive">
+              {t(error)}
+            </p>
           )}
           <div className="relative">
             <Search className="absolute left-3 top-3 size-4 text-muted-foreground" />
@@ -214,84 +215,88 @@ export function SongLibrary({
           </div>
           <div className="space-y-2">
             <h3 className="text-sm font-medium">{t("Моя библиотека")}</h3>
-            {t(
-              entries
-                .filter((e) => match(e.song.name))
-                .map((entry) => (
-                  <div
-                    key={entry.song.id}
-                    className="flex items-center gap-2 rounded-lg border p-3"
-                  >
-                    <Button
-                      disabled={busy}
-                      variant="ghost"
-                      className="min-w-0 flex-1 justify-start"
-                      onClick={() => {
-                        session.selectEntry(entry);
-                        setOpen(false);
-                      }}
-                    >
-                      <Music2 className="size-4 shrink-0" />
-                      <span className="truncate">{t(entry.song.name)}</span>
-                    </Button>
-                    {t(
-                      state.song.id === entry.song.id && (
-                        <Badge variant="secondary">{t("Открыто")}</Badge>
-                      ),
-                    )}
-                    <Button
-                      disabled={busy}
-                      variant="ghost"
-                      size="icon-sm"
-                      aria-label={t(`Удалить ${entry.song.name}`)}
-                      onClick={() =>
-                        void run(async () => {
-                          await removeSong(entry.song.id!);
-                          if (state.song.id === entry.song.id)
-                            session.notify(
-                              "Произведение удалено из библиотеки. При изменении настроек открытая песня сохранится снова.",
-                            );
-                        })
-                      }
-                    >
-                      <Trash2 className="size-4" />
-                    </Button>
-                  </div>
-                )),
+            {matchingEntries.length === 0 && (
+              <p className="text-sm text-muted-foreground">
+                {t(
+                  query
+                    ? "Ничего не найдено. Попробуйте другое название."
+                    : "Здесь появятся импортированные произведения.",
+                )}
+              </p>
             )}
-            {t(
-              !entries.filter((e) => match(e.song.name)).length && (
-                <p className="text-xs text-muted-foreground">
-                  {t("Нет произведений по этому запросу.")}
-                </p>
-              ),
+            {matchingEntries.map((entry) => (
+              <div
+                key={entry.song.id}
+                className="flex items-center gap-2 rounded-lg border p-3"
+              >
+                <Button
+                  disabled={busy}
+                  variant="ghost"
+                  className="min-w-0 flex-1 justify-start"
+                  onClick={() => {
+                    session.selectEntry(entry);
+                    setOpen(false);
+                  }}
+                >
+                  <Music2 className="size-4 shrink-0" />
+                  <span className="truncate">{t(entry.song.name)}</span>
+                </Button>
+                {state.song.id === entry.song.id && (
+                  <Badge variant="secondary">{t("Открыто")}</Badge>
+                )}
+                <Button
+                  disabled={busy}
+                  variant="ghost"
+                  size="icon-sm"
+                  aria-label={t(`Удалить ${entry.song.name}`)}
+                  onClick={() =>
+                    void run(async () => {
+                      await removeSong(entry.song.id!);
+                      if (state.song.id === entry.song.id)
+                        session.notify(
+                          "Произведение удалено из библиотеки. При изменении настроек открытая песня сохранится снова.",
+                        );
+                    })
+                  }
+                >
+                  <Trash2 className="size-4" />
+                </Button>
+              </div>
+            ))}
+            {!entries.filter((e) => match(e.song.name)).length && (
+              <p className="text-xs text-muted-foreground">
+                {t("Нет произведений по этому запросу.")}
+              </p>
             )}
           </div>
           <div className="space-y-2">
             <h3 className="text-sm font-medium">{t("Подборка для игры")}</h3>
-            {t(
-              catalog
-                .filter((s) => match(s.name) || match(s.composer))
-                .map((song) => (
-                  <Button
-                    disabled={busy}
-                    key={song.id}
-                    variant="outline"
-                    className="h-auto w-full justify-between py-3 text-left"
-                    onClick={() =>
-                      void remote(song.url, song.name, song.source)
-                    }
-                  >
-                    <span>
-                      <span className="block">{t(song.name)}</span>
-                      <span className="text-xs font-normal text-muted-foreground">
-                        {t(song.composer)}
-                      </span>
-                    </span>
-                    <Download className="size-4 shrink-0" />
-                  </Button>
-                )),
+            {matchingCatalog.length === 0 && (
+              <p className="text-sm text-muted-foreground">
+                {t(
+                  query
+                    ? "Ничего не найдено. Попробуйте другое название."
+                    : "Подборка пока пуста. Добавьте свой MIDI.",
+                )}
+              </p>
             )}
+            {matchingCatalog.map((song) => (
+              <Button
+                disabled={busy}
+                key={song.id}
+                variant="outline"
+                className="h-auto w-full justify-between py-3 text-left"
+                onClick={() => void remote(song.url, song.name, song.source)}
+              >
+                <span className="min-w-0 whitespace-normal break-words">
+                  <span className="block">{t(song.name)}</span>
+                  <span className="text-xs font-normal text-muted-foreground">
+                    {t(song.composer)}
+                  </span>
+                </span>
+                <Download className="size-4 shrink-0" />
+              </Button>
+            ))}
           </div>
           <div className="flex flex-wrap gap-2 border-t pt-4">
             <Button
@@ -337,17 +342,15 @@ export function SongLibrary({
               FluidR3 GM, CC BY 3.0
             </a>
             .{t(" ")}
-            {t(
-              state.song.source && (
-                <a
-                  className="underline"
-                  href={state.song.source}
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  {t("Источник текущей песни")}
-                </a>
-              ),
+            {state.song.source && (
+              <a
+                className="underline"
+                href={state.song.source}
+                target="_blank"
+                rel="noreferrer"
+              >
+                {t("Источник текущей песни")}
+              </a>
             )}
           </p>
         </div>

@@ -11,8 +11,7 @@ import {
   download,
   type LibraryEntry,
 } from "./library";
-import { Midi } from "@tonejs/midi";
-import { parseMidi } from "./midi-file";
+import { Midi, parseMidi } from "./midi-file";
 import { readRecord, saveRecord } from "./records";
 import {
   DEFAULT_SETTINGS,
@@ -28,8 +27,8 @@ export class PracticeSession {
   song: Song = {
     name: "Первые шаги",
     notes: [],
-    bpm: 160,
-    bars: 53,
+    bpm: 90,
+    bars: 1,
     beatsPerBar: 4,
     signature: "4/4",
   };
@@ -53,6 +52,7 @@ export class PracticeSession {
   private recentFeedback: Feedback | null = null;
   private result: Result | null = null;
   private notice = "";
+  private dismissedDeviceError: string | null = null;
   private loading = false;
   private preview = false;
   private testInput = false;
@@ -91,10 +91,13 @@ export class PracticeSession {
         else if (event.type === "off") this.release(source);
       },
       (status) => {
+        if (status.error !== this.device.error)
+          this.dismissedDeviceError = null;
         this.device = status;
         this.publish();
       },
       () => {
+        if (!this.device.connected && this.settings.sound !== "yamaha") return;
         this.pause();
         this.notice =
           "Связь с MIDI прервана. Попытка на паузе; подключение восстанавливается.";
@@ -190,7 +193,12 @@ export class PracticeSession {
       lastKey: this.lastKey,
       record: readRecord(this.song, this.settings),
       result: this.result,
-      notice: this.notice || this.device.error || "",
+      notice:
+        this.notice ||
+        (this.device.error === this.dismissedDeviceError
+          ? ""
+          : this.device.error) ||
+        "",
     };
   }
 
@@ -202,7 +210,10 @@ export class PracticeSession {
     this.notice = message;
     this.publish();
   }
-  dismissNotice = () => this.notify("");
+  dismissNotice = () => {
+    this.dismissedDeviceError = this.device.error;
+    this.notify("");
+  };
   closeResult = () => {
     this.result = null;
     this.publish();
@@ -217,6 +228,8 @@ export class PracticeSession {
     }
   }
   pause = () => {
+    this.generation++;
+    this.loading = false;
     this.engine.pause();
     this.held.clear();
     this.sources.clear();
@@ -260,11 +273,19 @@ export class PracticeSession {
       Math.min(this.song.bars, Math.round(this.settings.lastBar)),
     );
     this.persist();
-    const liveOptions = ["instrument", "bpm", "loop", "metronome", "backing", "visual"];
+    const liveOptions = [
+      "instrument",
+      "bpm",
+      "loop",
+      "metronome",
+      "backing",
+      "visual",
+    ];
     if (Object.keys(patch).every((key) => liveOptions.includes(key))) {
       this.engine.options.bpm = this.settings.bpm;
       this.publish();
-      if (this.settings.instrument !== previousInstrument) void this.changeInstrument();
+      if (this.settings.instrument !== previousInstrument)
+        void this.changeInstrument();
     } else this.reset();
   };
 
@@ -274,21 +295,38 @@ export class PracticeSession {
     const generation = this.generation;
     try {
       if (this.settings.sound === "browser") {
-        await this.audio.prepare(this.song.notes.map(n => n.pitch), program);
+        await this.audio.prepare(
+          this.song.notes.map((n) => n.pitch),
+          program,
+        );
       } else if (this.settings.sound === "yamaha") {
-        this.midiInstrumentQueue = this.midiInstrumentQueue.catch(() => {}).then(async () => {
-          if (request !== this.instrumentRequest || generation !== this.generation) return;
-          await midiRequest("instrument", { program });
-          if (request === this.instrumentRequest && generation === this.generation && this.engine.running) {
-            this.played.clear();
-            this.playAccompaniment(this.engine.beat, true);
-          }
-        });
+        this.midiInstrumentQueue = this.midiInstrumentQueue
+          .catch(() => {})
+          .then(async () => {
+            if (
+              request !== this.instrumentRequest ||
+              generation !== this.generation
+            )
+              return;
+            await midiRequest("instrument", { program });
+            if (
+              request === this.instrumentRequest &&
+              generation === this.generation &&
+              this.engine.running
+            ) {
+              this.played.clear();
+              this.playAccompaniment(this.engine.beat, true);
+            }
+          });
         await this.midiInstrumentQueue;
       }
     } catch (error) {
       if (request === this.instrumentRequest && generation === this.generation)
-        this.notify(error instanceof Error ? error.message : "Не удалось сменить инструмент.");
+        this.notify(
+          error instanceof Error
+            ? error.message
+            : "Не удалось сменить инструмент.",
+        );
     }
   }
 
@@ -310,7 +348,7 @@ export class PracticeSession {
     const song = parseMidi(buffer, name);
     song.id = await songId(song);
     song.source = source;
-    const stored = await readEntry(song.id);
+    const stored = await readEntry(song.id).catch(() => undefined);
     this.selectEntry(
       stored ?? {
         song,
@@ -394,17 +432,27 @@ export class PracticeSession {
   };
 
   private async begin() {
+    if (!this.engine.notes.length) {
+      this.notify(
+        "В выбранном фрагменте нет нот этой партии. Выберите другую руку или расширьте фрагмент.",
+      );
+      return;
+    }
     const generation = ++this.generation;
     this.loading = true;
     this.publish();
     try {
       if (this.settings.sound === "browser") {
-        do { await this.audio.prepare(
-          this.song.notes.map((n) => n.pitch),
-          this.settings.instrument,
-        ); } while (generation === this.generation && this.audio.program !== this.settings.instrument);
-      }
-      else if (this.settings.sound !== "off") {
+        do {
+          await this.audio.prepare(
+            this.song.notes.map((n) => n.pitch),
+            this.settings.instrument,
+          );
+        } while (
+          generation === this.generation &&
+          this.audio.program !== this.settings.instrument
+        );
+      } else if (this.settings.sound !== "off") {
         await this.audio.init();
         await midiRequest("instrument", { program: this.settings.instrument });
       }
@@ -450,6 +498,7 @@ export class PracticeSession {
     this.reset();
     void this.begin();
   };
+  restart = () => this.reset(this.preview);
   reconnect = async () => {
     this.pause();
     try {
@@ -478,7 +527,11 @@ export class PracticeSession {
         void this.audio
           .prepare([pitch], this.settings.instrument)
           .then(() => {
-            if (generation === this.generation && this.mounted)
+            if (
+              generation === this.generation &&
+              this.mounted &&
+              this.sources.get(source) === pitch
+            )
               this.audio.play(pitch, 0.4, 0.6);
           })
           .catch(() => {});

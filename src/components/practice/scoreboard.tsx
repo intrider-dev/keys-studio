@@ -46,10 +46,8 @@ function Metric({
           >
             {t(value)}
           </strong>
-          {t(
-            suffix && (
-              <span className="text-xs text-muted-foreground">{t(suffix)}</span>
-            ),
+          {suffix && (
+            <span className="text-xs text-muted-foreground">{t(suffix)}</span>
           )}
         </div>
       </CardContent>

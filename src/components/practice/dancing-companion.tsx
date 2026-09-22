@@ -182,28 +182,24 @@ export function DancingCompanion({
       >
         <div className="pointer-events-none relative aspect-[192/256]">
           <div ref={canvas} className="size-full" aria-hidden="true" />
-          {t(
-            status === "loading" && (
-              <div
-                role="status"
-                className="absolute inset-0 flex flex-col items-center justify-center gap-2 rounded-lg bg-background/60 text-xs"
-              >
-                <LoaderCircle className="size-5 animate-spin" />
-                {t("Загружаю Мику…")}
-              </div>
-            ),
+          {status === "loading" && (
+            <div
+              role="status"
+              className="absolute inset-0 flex flex-col items-center justify-center gap-2 rounded-lg bg-background/60 text-xs"
+            >
+              <LoaderCircle className="size-5 animate-spin" />
+              {t("Загружаю Мику…")}
+            </div>
           )}
-          {t(
-            status === "error" && (
-              <div
-                role="alert"
-                className="absolute inset-0 flex items-center rounded-lg bg-background/80 p-3 text-xs"
-              >
-                {t(
-                  "Не удалось загрузить Мику. Переключите режим или обновите страницу.",
-                )}
-              </div>
-            ),
+          {status === "error" && (
+            <div
+              role="alert"
+              className="absolute inset-0 flex items-center rounded-lg bg-background/80 p-3 text-xs"
+            >
+              {t(
+                "Не удалось загрузить Мику. Переключите режим или обновите страницу.",
+              )}
+            </div>
           )}
         </div>
         <div className="mx-auto flex w-fit items-center gap-1 rounded-full border border-white/15 bg-background/80 px-2 py-1 text-[9px] text-muted-foreground">

@@ -37,6 +37,7 @@ For development, keep the local server running and use `npm run dev`. To test MI
 
 ```powershell
 npm test
+python -m unittest discover -s tests -p test_bridge.py
 npm run build
 ```
 

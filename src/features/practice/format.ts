@@ -6,6 +6,18 @@ export const number = {
       value,
     ),
 };
+export function countLabel(value: number, kind: "notes" | "bars") {
+  const forms =
+    getLocale() === "en"
+      ? kind === "notes"
+        ? ["note", "notes", "notes"]
+        : ["bar", "bars", "bars"]
+      : kind === "notes"
+        ? ["нота", "ноты", "нот"]
+        : ["такт", "такта", "тактов"];
+  const category = new Intl.PluralRules(getLocale()).select(value);
+  return `${number.format(value)} ${forms[category === "one" ? 0 : category === "few" ? 1 : 2]}`;
+}
 export const handLabels: Record<Hand, string> = {
   left: "Левая рука",
   right: "Правая рука",

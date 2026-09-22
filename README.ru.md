@@ -37,6 +37,7 @@ npm run build
 
 ```powershell
 npm test
+python -m unittest discover -s tests -p test_bridge.py
 npm run build
 ```
 

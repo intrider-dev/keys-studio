@@ -51,7 +51,7 @@ class MidiBridge:
             self.close();self.error=None
             inputs=self.devices('In');outputs=self.devices('Out')
             found=next((d for d in inputs if 'keyboard' in d['name'].lower() or 'yamaha' in d['name'].lower()),None)
-            if not found:self.error='Подключите Yamaha кабелем USB и нажмите «Подключить».';return
+            if not found:self.error='Подключите клавиатуру по USB и нажмите «Переподключить MIDI».';return
             code=self.api.midiInOpen(c.byref(self.input),found['id'],c.cast(self.callback,c.c_void_p).value,0,0x30000)
             if code:self.input=w.HANDLE();self.error=f'Не удалось открыть MIDI-вход (код {code}). Закройте другие музыкальные программы.';return
             code=self.api.midiInStart(self.input)
@@ -67,7 +67,10 @@ class MidiBridge:
     def send(self,status,a,b):
         if self.output:
             result=self.api.midiOutShortMsg(self.output,status|(a<<8)|(b<<16))
-            if result:raise RuntimeError(f'MIDI output error {result}')
+            if result:
+                self.close()
+                self.error=f'Связь с MIDI-выходом потеряна (код {result}). Нажмите «Переподключить MIDI».'
+                raise RuntimeError(self.error)
     def panic(self):
         with self.lock:
             self.scheduled.clear()
@@ -78,7 +81,7 @@ class MidiBridge:
         program=int(program)
         if not 0<=program<=127:raise ValueError('Invalid program')
         with self.lock:
-            if not self.output:raise RuntimeError('MIDI output unavailable')
+            if not self.output:raise RuntimeError('MIDI-выход недоступен. Подключите клавиатуру или выберите звук компьютера.')
             self.panic()
             for ch in (0,1):
                 self.send(0xB0|ch,0,0);self.send(0xB0|ch,32,0);self.send(0xC0|ch,program,0)
@@ -86,9 +89,13 @@ class MidiBridge:
         with self.lock:
             if not self.output:raise RuntimeError('MIDI-выход Yamaha недоступен')
             now=time.monotonic()
-            for n in notes[:128]:
+            if not isinstance(notes,list) or len(notes)>128:raise ValueError('Invalid MIDI notes')
+            validated=[]
+            for n in notes:
                 pitch=int(n['pitch']);velocity=int(n.get('velocity',65));channel=int(n.get('channel',0));duration=float(n.get('duration',.3))
                 if not 0<=pitch<=127 or not 0<=velocity<=100 or channel not in (0,1) or not .01<=duration<=30:raise ValueError('Invalid MIDI note')
+                validated.append((pitch,velocity,channel,duration))
+            for pitch,velocity,channel,duration in validated:
                 self.send(0x90|channel,pitch,velocity);self.scheduled.append((now+duration,pitch,channel))
     def scheduler(self):
         while True:
@@ -107,7 +114,6 @@ class MidiBridge:
         if self.output:self.api.midiOutReset(self.output);self.api.midiOutClose(self.output);self.output=w.HANDLE()
         self.name=None;self.scheduled=[]
 
-bridge=MidiBridge();atexit.register(bridge.close)
 class Handler(SimpleHTTPRequestHandler):
     def __init__(self,*args,**kwargs):super().__init__(*args,directory=str(ROOT/'dist'),**kwargs)
     def log_message(self,*args):pass
@@ -147,6 +153,7 @@ class Handler(SimpleHTTPRequestHandler):
         except Exception as e:return self.respond({'error':str(e)},400)
 
 if __name__=='__main__':
+    bridge=MidiBridge();atexit.register(bridge.close)
     print(f'Piano trainer: http://127.0.0.1:{PORT}',flush=True)
     print(json.dumps(bridge.status(),ensure_ascii=True),flush=True)
     ThreadingHTTPServer(('127.0.0.1',PORT),Handler).serve_forever()

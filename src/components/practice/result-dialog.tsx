@@ -1,5 +1,5 @@
 import { t } from "@/lib/i18n";
-import { Trophy, RotateCcw } from "lucide-react";
+import { ChartColumn, RotateCcw } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -31,16 +31,10 @@ export function ResultDialog({
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <div className="mb-3 flex size-12 items-center justify-center rounded-xl bg-primary/10 text-primary">
-            <Trophy className="size-6" />
+            <ChartColumn className="size-6" />
           </div>
           <DialogTitle className="text-2xl">
-            {t(
-              result?.testInput
-                ? "Проверка завершена"
-                : (result?.accuracy ?? 0) >= 85
-                  ? "Получается уверенно!"
-                  : "Ещё на шаг ближе",
-            )}
+            {t("Результаты игры")}
           </DialogTitle>
           <DialogDescription>
             {t(
@@ -50,38 +44,32 @@ export function ResultDialog({
             )}
           </DialogDescription>
         </DialogHeader>
-        {t(
-          result && (
-            <div className="my-3 grid grid-cols-2 gap-5">
-              {t(
-                [
-                  ["Счёт", number.format(result.score)],
-                  ["Точность", `${result.accuracy ?? 0}%`],
-                  ["Лучшая серия", result.combo],
-                  ["Ошибки", result.misses + result.wrong + result.short],
-                ].map(([label, value]) => (
-                  <div key={label}>
-                    <p className="text-xs text-muted-foreground">{t(label)}</p>
-                    <strong className="mt-1 block text-3xl font-semibold tabular-nums">
-                      {t(value)}
-                    </strong>
-                  </div>
-                )),
-              )}
-            </div>
-          ),
+        {result && (
+          <div className="my-3 grid grid-cols-2 gap-5">
+            {[
+              ["Счёт", number.format(result.score)],
+              ["Точность", `${result.accuracy ?? 0}%`],
+              ["Лучшая серия", result.combo],
+              ["Ошибки", result.misses + result.wrong + result.short],
+            ].map(([label, value]) => (
+              <div key={label}>
+                <p className="text-xs text-muted-foreground">{t(label)}</p>
+                <strong className="mt-1 block text-3xl font-semibold tabular-nums">
+                  {t(value)}
+                </strong>
+              </div>
+            ))}
+          </div>
         )}
-        {t(
-          result && (
-            <p className="text-xs text-muted-foreground">
-              {t("Пропуски: ")}
-              {t(result.misses)}
-              {t(" · Неверные ноты: ")}
-              {t(result.wrong)}
-              {t(" · Удержание: ")}
-              {t(result.short)}
-            </p>
-          ),
+        {result && (
+          <p className="text-xs text-muted-foreground">
+            {t("Пропуски: ")}
+            {t(result.misses)}
+            {t(" · Неверные ноты: ")}
+            {t(result.wrong)}
+            {t(" · Удержание: ")}
+            {t(result.short)}
+          </p>
         )}
         <DialogFooter>
           <Button id="closeResult" variant="outline" onClick={onClose}>

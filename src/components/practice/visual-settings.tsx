@@ -28,7 +28,7 @@ export function VisualSettingsPanel({
 }) {
   const id = useId(),
     [error, setError] = useState("");
-  const [hasCharacter, setHasCharacter] = useState(false);
+  const [hasCharacter, setHasCharacter] = useState<boolean | null>(null);
   useEffect(() => {
     const abort = new AbortController();
     void fetch("/characters/miku.vrm", { method: "HEAD", signal: abort.signal })
@@ -37,7 +37,9 @@ export function VisualSettingsPanel({
           r.ok && !r.headers.get("content-type")?.includes("text/html"),
         ),
       )
-      .catch(() => {});
+      .catch(() => {
+        if (!abort.signal.aborted) setHasCharacter(false);
+      });
     return () => abort.abort();
   }, []);
   const patch = (p: Partial<VisualSettings>) => onChange({ ...v, ...p });
@@ -84,158 +86,150 @@ export function VisualSettingsPanel({
             onCheckedChange={(dancer) => patch({ dancer })}
           />
         </div>
-        {t(
-          !hasCharacter && (
-            <p className="text-xs text-muted-foreground">
-              {t(
-                "Модель устанавливается отдельно и не входит в публичную версию.",
-              )}
-            </p>
-          ),
+        {hasCharacter === false && (
+          <p className="text-xs text-muted-foreground">
+            {t(
+              "Модель устанавливается отдельно и не входит в публичную версию.",
+            )}
+          </p>
         )}
         <p className="text-xs leading-relaxed text-muted-foreground">
           {t(
             "Двигается в ритме BPM. На паузе и при ожидании ноты замирает вместе с дорожкой.",
           )}
         </p>
-        {t(
-          v.dancer && (
-            <>
-              <Tabs
-                value={v.dancerMode}
-                onValueChange={(mode) =>
-                  patch({ dancerMode: mode as "2d" | "3d" })
+        {v.dancer && (
+          <>
+            <Tabs
+              value={v.dancerMode}
+              onValueChange={(mode) =>
+                patch({ dancerMode: mode as "2d" | "3d" })
+              }
+            >
+              <TabsList
+                className="grid w-full grid-cols-2"
+                aria-label={t("Вид персонажа")}
+              >
+                <TabsTrigger value="2d">{t("2D персонаж")}</TabsTrigger>
+                <TabsTrigger value="3d">{t("3D персонаж")}</TabsTrigger>
+              </TabsList>
+            </Tabs>
+            <div className="space-y-2">
+              <Label>{t("Эмоции Мику")}</Label>
+              <Select
+                value={v.dancerEmotion}
+                onValueChange={(emotion) =>
+                  patch({
+                    dancerEmotion: emotion as VisualSettings["dancerEmotion"],
+                  })
                 }
               >
-                <TabsList
-                  className="grid w-full grid-cols-2"
-                  aria-label={t("Вид персонажа")}
-                >
-                  <TabsTrigger value="2d">{t("2D персонаж")}</TabsTrigger>
-                  <TabsTrigger value="3d">{t("3D персонаж")}</TabsTrigger>
-                </TabsList>
-              </Tabs>
-              <div className="space-y-2">
-                <Label>{t("Эмоции Мику")}</Label>
-                <Select
-                  value={v.dancerEmotion}
-                  onValueChange={(emotion) =>
-                    patch({
-                      dancerEmotion: emotion as VisualSettings["dancerEmotion"],
-                    })
-                  }
-                >
-                  <SelectTrigger aria-label={t("Эмоции Мику")}>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="auto">
-                      {t("Реагировать на игру")}
-                    </SelectItem>
-                    <SelectItem value="neutral">{t("Спокойствие")}</SelectItem>
-                    <SelectItem value="happy">{t("Радость")}</SelectItem>
-                    <SelectItem value="wink">{t("Подмигивание")}</SelectItem>
-                    <SelectItem value="surprised">{t("Удивление")}</SelectItem>
-                    <SelectItem value="sad">{t("Грусть")}</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <p className="text-xs text-muted-foreground">
-                {t(
-                  "Перетащите Мику мышью или пальцем. После выбора можно двигать стрелками; Shift увеличивает шаг.",
-                )}
-              </p>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => patch({ dancerX: 0.9, dancerY: 0.2 })}
+                <SelectTrigger aria-label={t("Эмоции Мику")}>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="auto">
+                    {t("Реагировать на игру")}
+                  </SelectItem>
+                  <SelectItem value="neutral">{t("Спокойствие")}</SelectItem>
+                  <SelectItem value="happy">{t("Радость")}</SelectItem>
+                  <SelectItem value="wink">{t("Подмигивание")}</SelectItem>
+                  <SelectItem value="surprised">{t("Удивление")}</SelectItem>
+                  <SelectItem value="sad">{t("Грусть")}</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <p className="text-xs text-muted-foreground">
+              {t(
+                "Перетащите Мику мышью или пальцем. После выбора можно двигать стрелками; Shift увеличивает шаг.",
+              )}
+            </p>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => patch({ dancerX: 0.9, dancerY: 0.2 })}
+            >
+              <RotateCcw className="size-3.5" />
+              {t("Вернуть на место")}
+            </Button>
+            <p className="text-[10px] leading-relaxed text-muted-foreground">
+              {t(
+                "Модель: Tda / Jjinomu, дизайн: iXima. © Crypton Future Media.",
+              )}
+              {t(" ")}
+              <a
+                className="underline"
+                href="https://github.com/outrine/HatsuneMiku_VRM_Model"
+                target="_blank"
+                rel="noreferrer"
               >
-                <RotateCcw className="size-3.5" />
-                {t("Вернуть на место")}
-              </Button>
-              <p className="text-[10px] leading-relaxed text-muted-foreground">
-                {t(
-                  "Модель: Tda / Jjinomu, дизайн: iXima. © Crypton Future Media.",
-                )}
-                {t(" ")}
-                <a
-                  className="underline"
-                  href="https://github.com/outrine/HatsuneMiku_VRM_Model"
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  {t("Источник и условия")}
-                </a>
-                {t(". Для личного некоммерческого использования.")}
-              </p>
-            </>
-          ),
+                {t("Источник и условия")}
+              </a>
+              {t(". Для личного некоммерческого использования.")}
+            </p>
+          </>
         )}
       </section>
-      {t(
-        (
-          [
-            {
-              key: "brightness",
-              label: "Яркость поля",
-              min: 0.3,
-              max: 1.8,
-              step: 0.05,
-            },
-            {
-              key: "opacity",
-              label: "Прозрачность дорожки",
-              min: 0,
-              max: 0.85,
-              step: 0.05,
-            },
-            {
-              key: "speed",
-              label: "Расстояние между битами",
-              min: 1.5,
-              max: 7,
-              step: 0.25,
-            },
-          ] as const
-        ).map((x) => (
-          <div key={x.key} className="space-y-3">
-            <Label>
-              {t(x.label)}
-              {t(" ")}
-              <span className="ml-auto tabular-nums text-muted-foreground">
-                {t(v[x.key].toFixed(2))}
-              </span>
-            </Label>
-            <Slider
-              aria-label={t(x.label)}
-              value={[v[x.key]]}
-              min={x.min}
-              max={x.max}
-              step={x.step}
-              onValueChange={([n]) => patch({ [x.key]: n })}
-            />
-          </div>
-        )),
-      )}
+      {(
+        [
+          {
+            key: "brightness",
+            label: "Яркость поля",
+            min: 0.3,
+            max: 1.8,
+            step: 0.05,
+          },
+          {
+            key: "opacity",
+            label: "Прозрачность дорожки",
+            min: 0,
+            max: 0.85,
+            step: 0.05,
+          },
+          {
+            key: "speed",
+            label: "Расстояние между битами",
+            min: 1.5,
+            max: 7,
+            step: 0.25,
+          },
+        ] as const
+      ).map((x) => (
+        <div key={x.key} className="space-y-3">
+          <Label>
+            {t(x.label)}
+            {t(" ")}
+            <span className="ml-auto tabular-nums text-muted-foreground">
+              {t(v[x.key].toFixed(2))}
+            </span>
+          </Label>
+          <Slider
+            aria-label={t(x.label)}
+            value={[v[x.key]]}
+            min={x.min}
+            max={x.max}
+            step={x.step}
+            onValueChange={([n]) => patch({ [x.key]: n })}
+          />
+        </div>
+      ))}
       <p className="text-xs text-muted-foreground">
         {t("Расстояние меняет вид дорожки, сохраняя BPM и момент нажатия.")}
       </p>
       <div className="grid grid-cols-2 gap-3">
-        {t(
-          (["right", "left"] as const).map((k) => (
-            <div key={k} className="space-y-2">
-              <Label htmlFor={id + k}>
-                {t(k === "right" ? "Правая рука" : "Левая рука")}
-              </Label>
-              <Input
-                id={id + k}
-                type="color"
-                value={v[k]}
-                onChange={(e) => patch({ [k]: e.target.value })}
-              />
-            </div>
-          )),
-        )}
+        {(["right", "left"] as const).map((k) => (
+          <div key={k} className="space-y-2">
+            <Label htmlFor={id + k}>
+              {t(k === "right" ? "Правая рука" : "Левая рука")}
+            </Label>
+            <Input
+              id={id + k}
+              type="color"
+              value={v[k]}
+              onChange={(e) => patch({ [k]: e.target.value })}
+            />
+          </div>
+        ))}
       </div>
       <div className="space-y-2">
         <Label>{t("Фон")}</Label>
@@ -270,12 +264,10 @@ export function VisualSettingsPanel({
         accept="image/png,image/jpeg,image/webp"
         onChange={(e) => void image(e.target.files?.[0])}
       />
-      {t(
-        error && (
-          <p role="alert" className="text-xs text-destructive">
-            {t(error)}
-          </p>
-        ),
+      {error && (
+        <p role="alert" className="text-xs text-destructive">
+          {t(error)}
+        </p>
       )}
       <Button
         variant="outline"

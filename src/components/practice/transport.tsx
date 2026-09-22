@@ -78,7 +78,7 @@ export function Transport({
                   size="icon"
                   className="size-10"
                   aria-label={t("Начать заново")}
-                  onClick={() => session.reset()}
+                  onClick={session.restart}
                 >
                   <RotateCcw />
                 </Button>
@@ -93,7 +93,7 @@ export function Transport({
                 s.preview ? session.reset() : void session.demo()
               }
             >
-              {t(s.preview ? <Square /> : <Headphones />)}
+              {s.preview ? <Square /> : <Headphones />}
               <span className="hidden sm:inline">
                 {t(s.preview ? "Стоп" : "Послушать")}
               </span>

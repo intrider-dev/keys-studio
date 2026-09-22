@@ -36,6 +36,63 @@ const groups = [
   "Звуковые эффекты",
 ];
 const ru: Record<number, string> = {
+  14: "Трубчатые колокола",
+  15: "Цимбалы",
+  17: "Перкуссионный орган",
+  18: "Рок-орган",
+  20: "Язычковый орган",
+  23: "Бандонеон",
+  28: "Приглушённая электрогитара",
+  31: "Гитарные флажолеты",
+  34: "Бас медиатором",
+  35: "Безладовый бас",
+  36: "Слэп-бас 1",
+  37: "Слэп-бас 2",
+  38: "Синтезаторный бас 1",
+  39: "Синтезаторный бас 2",
+  55: "Оркестровый акцент",
+  59: "Труба с сурдиной",
+  61: "Медная секция",
+  62: "Синтезаторные духовые 1",
+  63: "Синтезаторные духовые 2",
+  76: "Бутылочная флейта",
+  77: "Сякухати",
+  78: "Свист",
+  79: "Окарина",
+  82: "Каллиопа",
+  83: "Флейтовый лид",
+  84: "Гитарный лид",
+  85: "Вокальный лид",
+  86: "Квинтовый лид",
+  87: "Бас и лид",
+  92: "Смычковый пэд",
+  93: "Металлический пэд",
+  94: "Ореол",
+  95: "Плавный пэд",
+  96: "Дождь",
+  97: "Саундтрек",
+  98: "Кристалл",
+  99: "Атмосфера",
+  100: "Сияние",
+  101: "Гоблины",
+  102: "Эхо",
+  103: "Космос",
+  112: "Звон колокольчика",
+  113: "Агого",
+  114: "Стальные барабаны",
+  115: "Вуд-блок",
+  116: "Тайко",
+  117: "Мелодический том",
+  118: "Синтезаторный барабан",
+  119: "Обратная тарелка",
+  120: "Скрип гитарных струн",
+  121: "Шум дыхания",
+  122: "Морской прибой",
+  123: "Пение птиц",
+  124: "Телефон",
+  125: "Вертолёт",
+  126: "Аплодисменты",
+  127: "Выстрел",
   0: "Рояль",
   1: "Яркое фортепиано",
   2: "Электророяль",
@@ -60,7 +117,7 @@ const ru: Record<number, string> = {
   27: "Чистая электрогитара",
   29: "Перегруз гитары",
   30: "Дисторшн",
-  32: "Контрабасовый бас",
+  32: "Акустический бас",
   33: "Электробас",
   40: "Скрипка",
   41: "Альт",
@@ -140,55 +197,49 @@ export function InstrumentPicker({
           <CommandInput placeholder={t("Скрипка, strings, гитара…")} />
           <CommandList>
             <CommandEmpty>{t("Тембр не найден.")}</CommandEmpty>
-            {t(
-              groups.map((group, g) => (
-                <CommandGroup
-                  key={group}
-                  heading={t(
-                    <span className="flex items-center gap-2">
-                      <InstrumentIcon
-                        program={g * 8}
-                        className="size-3.5 shrink-0"
-                      />
-                      {t(group)}
-                    </span>,
-                  )}
-                >
-                  {t(
-                    names.slice(g * 8, g * 8 + 8).map((name, j) => {
-                      const i = g * 8 + j;
-                      return (
-                        <CommandItem
-                          key={name}
-                          className="pl-8"
-                          value={`${instrumentLabel(i)} ${name} ${group}`}
-                          keywords={[t(instrumentLabel(i)), t(group)]}
-                          onSelect={() => {
-                            onChange(i);
-                            setOpen(false);
-                          }}
-                        >
-                          <span className="min-w-0 flex-1">
-                            {t(instrumentLabel(i))}
-                          </span>
-                          {t(
-                            value === i && (
-                              <Check
-                                aria-hidden="true"
-                                className="size-3.5 shrink-0 text-primary"
-                              />
-                            ),
-                          )}
-                          <span className="ml-auto text-xs text-muted-foreground">
-                            {t(i + 1)}
-                          </span>
-                        </CommandItem>
-                      );
-                    }),
-                  )}
-                </CommandGroup>
-              )),
-            )}
+            {groups.map((group, g) => (
+              <CommandGroup
+                key={group}
+                heading={
+                  <span className="flex items-center gap-2">
+                    <InstrumentIcon
+                      program={g * 8}
+                      className="size-3.5 shrink-0"
+                    />
+                    {t(group)}
+                  </span>
+                }
+              >
+                {names.slice(g * 8, g * 8 + 8).map((name, j) => {
+                  const i = g * 8 + j;
+                  return (
+                    <CommandItem
+                      key={name}
+                      className="pl-8"
+                      value={`${instrumentLabel(i)} ${name} ${group}`}
+                      keywords={[t(instrumentLabel(i)), t(group)]}
+                      onSelect={() => {
+                        onChange(i);
+                        setOpen(false);
+                      }}
+                    >
+                      <span className="min-w-0 flex-1">
+                        {t(instrumentLabel(i))}
+                      </span>
+                      {value === i && (
+                        <Check
+                          aria-hidden="true"
+                          className="size-3.5 shrink-0 text-primary"
+                        />
+                      )}
+                      <span className="ml-auto text-xs text-muted-foreground">
+                        {t(i + 1)}
+                      </span>
+                    </CommandItem>
+                  );
+                })}
+              </CommandGroup>
+            ))}
           </CommandList>
         </Command>
       </PopoverContent>

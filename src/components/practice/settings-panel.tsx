@@ -107,12 +107,10 @@ function ToggleSetting({
         <Label htmlFor={id} className="text-sm font-normal leading-snug">
           {t(label)}
         </Label>
-        {t(
-          description && (
-            <p className="text-xs leading-relaxed text-muted-foreground">
-              {t(description)}
-            </p>
-          ),
+        {description && (
+          <p className="text-xs leading-relaxed text-muted-foreground">
+            {t(description)}
+          </p>
         )}
       </div>
       <Switch id={id} checked={checked} onCheckedChange={onChange} />
@@ -143,13 +141,11 @@ export function Choice({
           <SelectValue />
         </SelectTrigger>
         <SelectContent>
-          {t(
-            options.map((option) => (
-              <SelectItem key={option.value} value={option.value}>
-                {t(option.label)}
-              </SelectItem>
-            )),
-          )}
+          {options.map((option) => (
+            <SelectItem key={option.value} value={option.value}>
+              {t(option.label)}
+            </SelectItem>
+          ))}
         </SelectContent>
       </Select>
     </div>
@@ -187,7 +183,7 @@ export function SettingsPanel({
           {t("Настройки")}
         </CardTitle>
         <CardDescription className="text-xs">
-          {t("Подстройте практику под себя")}
+          {t("Темп, партия, звук и оформление")}
         </CardDescription>
       </CardHeader>
       <CardContent className="px-5">

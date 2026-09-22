@@ -103,8 +103,16 @@ export function cleanSettings(
   };
 }
 export function parseBundle(text: string): LibraryEntry {
-  const data = JSON.parse(text);
+  let data;
+  try {
+    data = JSON.parse(text);
+  } catch {
+    throw new Error(
+      "Файл произведения повреждён. Попробуйте экспортировать его заново.",
+    );
+  }
   if (
+    !data ||
     data.format !== "piano-practice" ||
     data.version !== 1 ||
     !data.song ||
@@ -116,6 +124,7 @@ export function parseBundle(text: string): LibraryEntry {
   const raw = data.song;
   if (
     typeof raw.name !== "string" ||
+    !raw.name.trim() ||
     raw.name.length > 200 ||
     !Number.isFinite(raw.beatsPerBar) ||
     raw.beatsPerBar <= 0 ||
@@ -160,10 +169,7 @@ export function parseBundle(text: string): LibraryEntry {
         ...notes.map((n: Song["notes"][number]) => n.start + n.duration),
       ) / raw.beatsPerBar,
     ),
-    signature:
-      typeof raw.signature === "string" && /^\d+\/\d+$/.test(raw.signature)
-        ? raw.signature
-        : "4/4",
+    signature: validSignature(raw.signature, raw.beatsPerBar),
     source:
       typeof raw.source === "string" && /^https:\/\//.test(raw.source)
         ? raw.source
@@ -174,6 +180,20 @@ export function parseBundle(text: string): LibraryEntry {
     settings: cleanSettings(data.settings ?? {}, song.bars),
     updated: Date.now(),
   };
+}
+
+function validSignature(value: unknown, beatsPerBar: number): string {
+  if (typeof value !== "string" || !/^\d+\/\d+$/.test(value))
+    throw new Error("Некорректный музыкальный размер.");
+  const [numerator, denominator] = value.split("/").map(Number);
+  if (
+    numerator < 1 ||
+    numerator > 32 ||
+    ![1, 2, 4, 8, 16, 32].includes(denominator) ||
+    Math.abs((numerator * 4) / denominator - beatsPerBar) > 0.0001
+  )
+    throw new Error("Некорректный музыкальный размер.");
+  return value;
 }
 export function download(name: string, blob: Blob) {
   const url = URL.createObjectURL(blob),

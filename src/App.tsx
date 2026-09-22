@@ -42,6 +42,7 @@ import { ActivityPanel } from "@/components/practice/activity-panel";
 import { ResultDialog } from "@/components/practice/result-dialog";
 import { HelpDialog } from "@/components/practice/help-dialog";
 import { cn } from "@/lib/utils";
+import { countLabel } from "@/features/practice/format";
 import type { Mode } from "@/features/practice/types";
 
 export default function App() {
@@ -123,24 +124,22 @@ export default function App() {
           <ChevronRight className="size-3" />
           <span className="truncate text-foreground">{t(state.song.name)}</span>
         </div>
-        {t(
-          state.notice && (
-            <Alert className="mb-5 border-amber-300/20 bg-amber-300/5 text-amber-200">
-              <AlertTriangle className="size-4" />
-              <AlertDescription className="flex items-center justify-between gap-3 text-amber-200">
-                <span>{t(state.notice)}</span>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="size-6 shrink-0"
-                  aria-label={t("Закрыть сообщение")}
-                  onClick={session.dismissNotice}
-                >
-                  <X className="size-3" />
-                </Button>
-              </AlertDescription>
-            </Alert>
-          ),
+        {state.notice && (
+          <Alert className="mb-5 border-amber-300/20 bg-amber-300/5 text-amber-200">
+            <AlertTriangle className="size-4" />
+            <AlertDescription className="flex items-center justify-between gap-3 text-amber-200">
+              <span>{t(state.notice)}</span>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="size-6 shrink-0"
+                aria-label={t("Закрыть сообщение")}
+                onClick={session.dismissNotice}
+              >
+                <X className="size-3" />
+              </Button>
+            </AlertDescription>
+          </Alert>
         )}
         <div className="grid items-start gap-6 xl:grid-cols-[minmax(0,1fr)_300px]">
           <main className="min-w-0 space-y-4">
@@ -160,13 +159,11 @@ export default function App() {
                   {t(state.song.name)}
                 </h1>
                 <p className="mt-2 text-xs text-muted-foreground">
-                  {t(state.song.notes.length)}
-                  {t(" нот")}
+                  {countLabel(state.song.notes.length, "notes")}
                   {t(" ")}
                   <span className="px-1.5 text-muted-foreground/40">/</span>
                   {t(" ")}
-                  {t(state.song.bars)}
-                  {t(" такта")}
+                  {countLabel(state.song.bars, "bars")}
                   {t(" ")}
                   <span className="px-1.5 text-muted-foreground/40">/</span>
                   {t(" ")}
@@ -184,33 +181,31 @@ export default function App() {
                   <Upload className="size-4" />
                   {t("Открыть MIDI")}
                 </Button>
-                {t(
-                  !desktop && (
-                    <Sheet>
-                      <SheetTrigger asChild>
-                        <Button
-                          variant="outline"
-                          size="icon"
-                          aria-label={t("Открыть настройки")}
-                          className="xl:hidden"
-                        >
-                          <SlidersHorizontal className="size-4" />
-                        </Button>
-                      </SheetTrigger>
-                      <SheetContent className="overflow-y-auto p-4 sm:max-w-sm">
-                        <SheetHeader className="px-0">
-                          <SheetTitle>{t("Настройки практики")}</SheetTitle>
-                          <SheetDescription>
-                            {t("Темп, партия и звук")}
-                          </SheetDescription>
-                        </SheetHeader>
-                        <SettingsPanel
-                          state={state}
-                          update={session.updateSettings}
-                        />
-                      </SheetContent>
-                    </Sheet>
-                  ),
+                {!desktop && (
+                  <Sheet>
+                    <SheetTrigger asChild>
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        aria-label={t("Открыть настройки")}
+                        className="xl:hidden"
+                      >
+                        <SlidersHorizontal className="size-4" />
+                      </Button>
+                    </SheetTrigger>
+                    <SheetContent className="w-[calc(100%-1rem)] overflow-y-auto p-4 sm:max-w-sm">
+                      <SheetHeader className="px-0">
+                        <SheetTitle>{t("Настройки практики")}</SheetTitle>
+                        <SheetDescription>
+                          {t("Темп, партия и звук")}
+                        </SheetDescription>
+                      </SheetHeader>
+                      <SettingsPanel
+                        state={state}
+                        update={session.updateSettings}
+                      />
+                    </SheetContent>
+                  </Sheet>
                 )}
               </div>
               <input
@@ -268,25 +263,23 @@ export default function App() {
                     : "Следуйте ритму. Точные нажатия увеличивают серию и счёт.",
               )}
             </p>
-            {t(!state.preview && <Scoreboard state={state} />)}
+            {!state.preview && <Scoreboard state={state} />}
             <PianoStage state={state} session={session} />
             <Transport state={state} session={session} />
-            {t(!state.preview && <ActivityPanel state={state} />)}
+            {!state.preview && <ActivityPanel state={state} />}
           </main>
-          {t(
-            desktop && (
-              <aside className="space-y-4">
-                <SettingsPanel state={state} update={session.updateSettings} />
-                <div className="flex items-start gap-2 px-2 text-xs leading-relaxed text-muted-foreground">
-                  <Cable className="mt-0.5 size-4 shrink-0" />
-                  <p>
-                    {t(
-                      "Играйте на Yamaha. Нажатия появятся на клавиатуре в реальном времени.",
-                    )}
-                  </p>
-                </div>
-              </aside>
-            ),
+          {desktop && (
+            <aside className="space-y-4">
+              <SettingsPanel state={state} update={session.updateSettings} />
+              <div className="flex items-start gap-2 px-2 text-xs leading-relaxed text-muted-foreground">
+                <Cable className="mt-0.5 size-4 shrink-0" />
+                <p>
+                  {t(
+                    "Играйте на Yamaha. Нажатия появятся на клавиатуре в реальном времени.",
+                  )}
+                </p>
+              </div>
+            </aside>
           )}
         </div>
         <footer className="mt-7 flex flex-wrap justify-between gap-2 border-t border-border/50 pt-4 text-[10px] text-muted-foreground/70">

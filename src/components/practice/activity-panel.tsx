@@ -32,42 +32,37 @@ export function ActivityPanel({ state }: { state: Snapshot }) {
             id="events"
             className="flex min-h-12 flex-wrap items-center gap-2"
           >
-            {t(
-              !state.feedback.length && (
-                <p className="text-xs leading-relaxed text-muted-foreground">
-                  {t(
-                    "Сыграйте первые ноты. Здесь появится оценка каждого нажатия.",
+            {!state.feedback.length && (
+              <p className="text-xs leading-relaxed text-muted-foreground">
+                {t(
+                  "Сыграйте первые ноты. Здесь появится оценка каждого нажатия.",
+                )}
+              </p>
+            )}
+            {state.feedback.map((event, i) => {
+              const bad = isError(event.type),
+                timing = isTiming(event.type);
+              const Icon = bad ? X : timing ? Clock3 : Check;
+              return (
+                <Badge
+                  key={`${event.beat}:${event.pitch}:${i}`}
+                  variant="outline"
+                  className={cn(
+                    "gap-1.5 py-1.5 font-normal",
+                    bad
+                      ? "border-rose-400/25 bg-rose-400/8 text-rose-300"
+                      : timing
+                        ? "border-amber-300/25 bg-amber-300/8 text-amber-200"
+                        : "border-emerald-300/20 bg-emerald-300/8 text-emerald-200",
                   )}
-                </p>
-              ),
-            )}
-            {t(
-              state.feedback.map((event, i) => {
-                const bad = isError(event.type),
-                  timing = isTiming(event.type);
-                const Icon = bad ? X : timing ? Clock3 : Check;
-                return (
-                  <Badge
-                    key={`${event.beat}:${event.pitch}:${i}`}
-                    variant="outline"
-                    className={cn(
-                      "gap-1.5 py-1.5 font-normal",
-                      bad
-                        ? "border-rose-400/25 bg-rose-400/8 text-rose-300"
-                        : timing
-                          ? "border-amber-300/25 bg-amber-300/8 text-amber-200"
-                          : "border-emerald-300/20 bg-emerald-300/8 text-emerald-200",
-                    )}
-                  >
-                    <Icon className="size-3" />
-                    {t(
-                      event.pitch === undefined ? "" : noteName(event.pitch),
-                    )}{" "}
-                    · {t(feedbackLabels[event.type])}
-                  </Badge>
-                );
-              }),
-            )}
+                >
+                  <Icon className="size-3" />
+                  {t(
+                    event.pitch === undefined ? "" : noteName(event.pitch),
+                  )} · {t(feedbackLabels[event.type])}
+                </Badge>
+              );
+            })}
           </div>
         </CardContent>
       </Card>
@@ -101,12 +96,10 @@ export function ActivityPanel({ state }: { state: Snapshot }) {
           <div>
             <p className="text-[10px] text-muted-foreground">{t("Точность")}</p>
             <strong className="mt-1 block text-xl font-medium tabular-nums">
-              {t(
-                state.record.accuracy === null ? (
-                  <EmptyMetric />
-                ) : (
-                  `${state.record.accuracy}%`
-                ),
+              {state.record.accuracy === null ? (
+                <EmptyMetric />
+              ) : (
+                `${state.record.accuracy}%`
               )}
             </strong>
           </div>

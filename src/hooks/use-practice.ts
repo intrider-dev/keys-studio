@@ -24,10 +24,12 @@ export function usePractice() {
   useEffect(() => {
     let octave = 0;
     const keydown = (event: KeyboardEvent) => {
+      if (event.ctrlKey || event.metaKey || event.altKey || event.isComposing)
+        return;
       const target = event.target as HTMLElement;
       if (
         target.closest(
-          'input, select, textarea, [role="slider"], [role="combobox"], [role="dialog"]',
+          'input, select, textarea, [contenteditable="true"], [role="slider"], [role="combobox"], [role="dialog"]',
         ) ||
         session.getSnapshot().result
       )

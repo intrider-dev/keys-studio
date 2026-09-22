@@ -340,44 +340,38 @@ export function SheetMusic({
       className={`absolute inset-x-0 bottom-0 flex min-w-0 flex-col bg-[#faf8f2] text-slate-800 ${fullscreen ? "top-52 sm:top-40 lg:top-24" : "top-16"}`}
     >
       <div className="flex shrink-0 flex-wrap items-center gap-x-4 gap-y-2 border-b border-slate-200 px-3 py-2">
-        {t(
-          (
-            [
-              ["sheetColumns", "Тактов в строке", columns, 6],
-              ["sheetRows", "Строк на листе", rows, 8],
-            ] as const
-          ).map(([field, label, value, max]) => (
-            <div key={field} className="flex items-center gap-2">
-              <span className="text-xs">{t(label)}</span>
-              <Select
-                value={String(value)}
-                onValueChange={(v) => changeLayout(field, Number(v))}
+        {(
+          [
+            ["sheetColumns", "Тактов в строке", columns, 6],
+            ["sheetRows", "Строк на листе", rows, 8],
+          ] as const
+        ).map(([field, label, value, max]) => (
+          <div key={field} className="flex items-center gap-2">
+            <span className="text-xs">{t(label)}</span>
+            <Select
+              value={String(value)}
+              onValueChange={(v) => changeLayout(field, Number(v))}
+            >
+              <SelectTrigger
+                size="sm"
+                aria-label={t(label)}
+                className="w-16 border-slate-300 bg-transparent text-slate-800 dark:bg-transparent"
               >
-                <SelectTrigger
-                  size="sm"
-                  aria-label={t(label)}
-                  className="w-16 border-slate-300 bg-transparent text-slate-800 dark:bg-transparent"
-                >
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent
-                  container={
-                    fullscreen ? document.fullscreenElement : undefined
-                  }
-                  position="popper"
-                >
-                  {t(
-                    Array.from({ length: max }, (_, i) => (
-                      <SelectItem key={i + 1} value={String(i + 1)}>
-                        {t(i + 1)}
-                      </SelectItem>
-                    )),
-                  )}
-                </SelectContent>
-              </Select>
-            </div>
-          )),
-        )}
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent
+                container={fullscreen ? document.fullscreenElement : undefined}
+                position="popper"
+              >
+                {Array.from({ length: max }, (_, i) => (
+                  <SelectItem key={i + 1} value={String(i + 1)}>
+                    {t(i + 1)}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        ))}
         <span className="text-[11px] text-slate-500">
           {t(perPage)}
           {t(" тактов на листе")}
@@ -429,20 +423,16 @@ export function SheetMusic({
           tabIndex={0}
           aria-label={t("Нотный лист")}
         >
-          {t(
-            loading && (
-              <div className="absolute inset-0 z-10 flex items-center justify-center bg-[#faf8f2]/90">
-                <LoaderCircle className="mr-2 size-4 animate-spin" />
-                {t("Подготовка нот…")}
-              </div>
-            ),
+          {loading && (
+            <div className="absolute inset-0 z-10 flex items-center justify-center bg-[#faf8f2]/90">
+              <LoaderCircle className="mr-2 size-4 animate-spin" />
+              {t("Подготовка нот…")}
+            </div>
           )}
-          {t(
-            error && (
-              <p role="alert" className="p-4 text-sm text-red-700">
-                {t(error)}
-              </p>
-            ),
+          {error && (
+            <p role="alert" className="p-4 text-sm text-red-700">
+              {t(error)}
+            </p>
           )}
           <div
             ref={host}
@@ -452,34 +442,30 @@ export function SheetMusic({
             }}
           />
         </div>
-        {t(
-          (state.loading || (state.running && state.beat < state.start)) && (
-            <div className="pointer-events-none absolute inset-0 z-20 flex items-center justify-center bg-[#faf8f2]/40">
-              <div
-                role="status"
-                aria-live="polite"
-                aria-atomic="true"
-                data-testid="sheet-count-in"
-                className="flex min-w-44 flex-col items-center gap-2 rounded-2xl border border-slate-200 bg-[#faf8f2]/95 px-8 py-5 text-center shadow-lg"
-              >
-                {t(
-                  state.loading ? (
-                    <LoaderCircle
-                      aria-hidden="true"
-                      className="size-9 animate-spin text-sky-700"
-                    />
-                  ) : (
-                    <strong className="text-7xl font-semibold tabular-nums text-sky-700">
-                      {t(Math.ceil(state.start - state.beat))}
-                    </strong>
-                  ),
-                )}
-                <span className="text-sm font-medium">
-                  {t(state.loading ? "Подготовка звука…" : "Приготовьтесь")}
-                </span>
-              </div>
+        {(state.loading || (state.running && state.beat < state.start)) && (
+          <div className="pointer-events-none absolute inset-0 z-20 flex items-center justify-center bg-[#faf8f2]/40">
+            <div
+              role="status"
+              aria-live="polite"
+              aria-atomic="true"
+              data-testid="sheet-count-in"
+              className="flex min-w-44 flex-col items-center gap-2 rounded-2xl border border-slate-200 bg-[#faf8f2]/95 px-8 py-5 text-center shadow-lg"
+            >
+              {state.loading ? (
+                <LoaderCircle
+                  aria-hidden="true"
+                  className="size-9 animate-spin text-sky-700"
+                />
+              ) : (
+                <strong className="text-7xl font-semibold tabular-nums text-sky-700">
+                  {t(Math.ceil(state.start - state.beat))}
+                </strong>
+              )}
+              <span className="text-sm font-medium">
+                {t(state.loading ? "Подготовка звука…" : "Приготовьтесь")}
+              </span>
             </div>
-          ),
+          </div>
         )}
       </div>
       <div className="flex shrink-0 flex-wrap gap-x-3 border-t border-slate-200 px-3 py-1 text-[10px] text-slate-500">
@@ -487,30 +473,24 @@ export function SheetMusic({
         <span className="text-sky-700">{t("Текущие")}</span>
         <span className="text-green-700">{t("Верно")}</span>
         <span className="text-red-600">{t("Ошибка")}</span>
-        {t(
-          state.waiting && (
-            <span className="font-medium text-sky-700">
-              {t("Ожидаю нажатия")}
-            </span>
-          ),
+        {state.waiting && (
+          <span className="font-medium text-sky-700">
+            {t("Ожидаю нажатия")}
+          </span>
         )}
-        {t(
-          state.recentFeedback && (
-            <span
-              className={
-                isError(state.recentFeedback.type)
-                  ? "font-medium text-red-600"
-                  : "font-medium text-green-700"
-              }
-            >
-              {t(feedbackLabels[state.recentFeedback.type])}
-            </span>
-          ),
+        {state.recentFeedback && (
+          <span
+            className={
+              isError(state.recentFeedback.type)
+                ? "font-medium text-red-600"
+                : "font-medium text-green-700"
+            }
+          >
+            {t(feedbackLabels[state.recentFeedback.type])}
+          </span>
         )}
-        {t(
-          !state.running && state.beat < state.start && (
-            <span>{t("Нажмите «Начать»")}</span>
-          ),
+        {!state.running && state.beat < state.start && (
+          <span>{t("Нажмите «Начать»")}</span>
         )}
       </div>
     </div>

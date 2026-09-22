@@ -66,6 +66,31 @@ test("invalid packages and unplayable notes are rejected", () => {
       ),
     );
 });
+test("damaged packages and impossible time signatures report readable errors", () => {
+  assert.throws(() => parseBundle("{"), /повреждён/);
+  assert.throws(() => parseBundle("null"), /Неизвестный формат/);
+  for (const signature of ["4/0", "0/4", "4/3", "6/8"]) {
+    assert.throws(
+      () =>
+        parseBundle(
+          JSON.stringify({
+            format: "piano-practice",
+            version: 1,
+            song: { ...song, signature },
+          }),
+        ),
+      /музыкальный размер/,
+    );
+  }
+  assert.throws(
+    () =>
+      parseMidi(
+        new TextEncoder().encode("<html>not midi</html>").buffer,
+        "file",
+      ),
+    /Не удалось прочитать MIDI/,
+  );
+});
 test("imported settings cannot introduce remote images or invalid ranges", () => {
   const settings = cleanSettings(
     {
@@ -102,14 +127,18 @@ test("every downloaded piece parses into the Yamaha keyboard range", () => {
     assert.ok(Number.isFinite(parsed.bars));
   }
 });
-test("all 128 local instruments contain decodable audio data", { skip: !existsSync("public/instruments") }, () => {
-  const files = readdirSync("public/instruments");
-  assert.equal(files.length, 128);
-  for (const file of files) {
-    const samples = JSON.parse(
-      readFileSync("public/instruments/" + file, "utf8"),
-    );
-    assert.match(samples.C4, /^data:audio\/mp3;base64,/);
-    assert.ok(Buffer.from(samples.C4.split(",")[1], "base64").length > 100);
-  }
-});
+test(
+  "all 128 local instruments contain decodable audio data",
+  { skip: !existsSync("public/instruments") },
+  () => {
+    const files = readdirSync("public/instruments");
+    assert.equal(files.length, 128);
+    for (const file of files) {
+      const samples = JSON.parse(
+        readFileSync("public/instruments/" + file, "utf8"),
+      );
+      assert.match(samples.C4, /^data:audio\/mp3;base64,/);
+      assert.ok(Buffer.from(samples.C4.split(",")[1], "base64").length > 100);
+    }
+  },
+);
