@@ -1,3 +1,4 @@
+import { t } from "@/lib/i18n";
 import { useState } from "react";
 import { Check, ChevronsUpDown } from "lucide-react";
 import { InstrumentIcon } from "./instrument-icon";
@@ -124,43 +125,70 @@ export function InstrumentPicker({
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          aria-label="Тембр инструмента"
+          aria-label={t("Тембр инструмента")}
           className="w-full justify-between"
         >
           <InstrumentIcon program={value} />
-          <span className="truncate">{instrumentLabel(value)}</span>
+          <span className="truncate">{t(instrumentLabel(value))}</span>
           <ChevronsUpDown className="size-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
       <PopoverContent align="start" className="w-80 p-0">
-        <Command defaultValue={`${instrumentLabel(value)} ${names[value]} ${groups[Math.floor(value / 8)]}`}>
-          <CommandInput placeholder="Скрипка, strings, гитара…" />
+        <Command
+          defaultValue={`${instrumentLabel(value)} ${names[value]} ${groups[Math.floor(value / 8)]}`}
+        >
+          <CommandInput placeholder={t("Скрипка, strings, гитара…")} />
           <CommandList>
-            <CommandEmpty>Тембр не найден.</CommandEmpty>
-            {groups.map((group, g) => (
-              <CommandGroup key={group} heading={<span className="flex items-center gap-2"><InstrumentIcon program={g * 8} className="size-3.5 shrink-0" />{group}</span>}>
-                {names.slice(g * 8, g * 8 + 8).map((name, j) => {
-                  const i = g * 8 + j;
-                  return (
-                    <CommandItem
-                      key={name}
-                      className="pl-8"
-                      value={`${instrumentLabel(i)} ${name} ${group}`}
-                      onSelect={() => {
-                        onChange(i);
-                        setOpen(false);
-                      }}
-                    >
-                      <span className="min-w-0 flex-1">{instrumentLabel(i)}</span>
-                      {value === i && <Check aria-hidden="true" className="size-3.5 shrink-0 text-primary" />}
-                      <span className="ml-auto text-xs text-muted-foreground">
-                        {i + 1}
-                      </span>
-                    </CommandItem>
-                  );
-                })}
-              </CommandGroup>
-            ))}
+            <CommandEmpty>{t("Тембр не найден.")}</CommandEmpty>
+            {t(
+              groups.map((group, g) => (
+                <CommandGroup
+                  key={group}
+                  heading={t(
+                    <span className="flex items-center gap-2">
+                      <InstrumentIcon
+                        program={g * 8}
+                        className="size-3.5 shrink-0"
+                      />
+                      {t(group)}
+                    </span>,
+                  )}
+                >
+                  {t(
+                    names.slice(g * 8, g * 8 + 8).map((name, j) => {
+                      const i = g * 8 + j;
+                      return (
+                        <CommandItem
+                          key={name}
+                          className="pl-8"
+                          value={`${instrumentLabel(i)} ${name} ${group}`}
+                          keywords={[t(instrumentLabel(i)), t(group)]}
+                          onSelect={() => {
+                            onChange(i);
+                            setOpen(false);
+                          }}
+                        >
+                          <span className="min-w-0 flex-1">
+                            {t(instrumentLabel(i))}
+                          </span>
+                          {t(
+                            value === i && (
+                              <Check
+                                aria-hidden="true"
+                                className="size-3.5 shrink-0 text-primary"
+                              />
+                            ),
+                          )}
+                          <span className="ml-auto text-xs text-muted-foreground">
+                            {t(i + 1)}
+                          </span>
+                        </CommandItem>
+                      );
+                    }),
+                  )}
+                </CommandGroup>
+              )),
+            )}
           </CommandList>
         </Command>
       </PopoverContent>

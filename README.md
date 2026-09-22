@@ -4,7 +4,7 @@
 
 A small piano practice app for your MIDI keyboard. Open a song, slow it down, and learn one hand at a time.
 
-![Piano roll in Keys Studio](docs/images/piano-roll.png)
+![Piano roll in Keys Studio](docs/images/piano-roll.en.png)
 
 ## Play your way
 
@@ -15,11 +15,11 @@ A small piano practice app for your MIDI keyboard. Open a song, slow it down, an
 - Keep each song's settings locally. Share a song and its settings as a `.pianopack` file.
 - Adjust note colors, brightness, backgrounds, and the number of measures on a sheet.
 
-![Sheet music view](docs/images/sheet-music.png)
+![Sheet music view](docs/images/sheet-music.en.png)
 
 ## Run locally
 
-You'll need **Windows, Node.js 22+, Python 3.10+, and a recent Chrome or Edge**. The MIDI bridge uses Windows' built-in WinMM API; no Python packages are needed. The interface is currently in Russian.
+You'll need **Windows, Node.js 22+, Python 3.10+, and a recent Chrome or Edge**. The MIDI bridge uses Windows' built-in WinMM API; no Python packages are needed. Switch between English and Russian with **EN / RU** in the header. Your choice is saved in this browser.
 
 ```powershell
 git clone https://github.com/intrider-dev/keys-studio.git
@@ -31,7 +31,7 @@ npm run build
 
 The app opens at **http://127.0.0.1:8765**. Connect your keyboard by USB before starting. It was developed with a Yamaha YPT-370; other devices supported by WinMM may work but haven't been verified. You can also use the computer keyboard or click the piano keys.
 
-Start with the included practice study, or use **Открыть MIDI** to import your own piece. **Произведения** opens the library. Space pauses and resumes playback.
+Start with the included practice study, or use **Open MIDI** to import your own piece. **Library** opens the library. Space pauses and resumes playback.
 
 For development, keep the local server running and use `npm run dev`. To test MIDI output, use the built app on port 8765; the bridge restricts write requests to that origin.
 

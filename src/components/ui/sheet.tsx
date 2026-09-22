@@ -1,4 +1,5 @@
-"use client";
+import { t } from "@/lib/i18n";
+("use client");
 
 import * as React from "react";
 import { cn } from "cn";
@@ -76,7 +77,7 @@ function SheetContent({
         {showCloseButton && (
           <SheetPrimitive.Close className="absolute top-4 right-4 rounded-xs opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:outline-hidden disabled:pointer-events-none data-[state=open]:bg-secondary">
             <XIcon className="size-4" />
-            <span className="sr-only">Закрыть</span>
+            <span className="sr-only">{t("Закрыть")}</span>
           </SheetPrimitive.Close>
         )}
       </SheetPrimitive.Content>

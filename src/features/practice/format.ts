@@ -1,5 +1,11 @@
 import type { FeedbackType, Hand } from "./types";
-export const number = new Intl.NumberFormat("ru-RU");
+import { getLocale } from "../../lib/i18n";
+export const number = {
+  format: (value: number) =>
+    new Intl.NumberFormat(getLocale() === "ru" ? "ru-RU" : "en-US").format(
+      value,
+    ),
+};
 export const handLabels: Record<Hand, string> = {
   left: "Левая рука",
   right: "Правая рука",

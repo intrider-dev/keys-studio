@@ -4,7 +4,7 @@
 
 Небольшой тренажёр для MIDI-клавиатуры. Откройте произведение, замедлите темп и разберите его по одной руке.
 
-![Дорожка нот в Keys Studio](docs/images/piano-roll.png)
+![Дорожка нот в Keys Studio](docs/images/piano-roll.ru.png)
 
 ## Что умеет
 
@@ -15,11 +15,11 @@
 - Сохраняет настройки для каждой песни. Песней вместе с настройками можно поделиться через `.pianopack`.
 - Позволяет настроить цвета, яркость, фон и количество тактов на нотном листе.
 
-![Нотный режим](docs/images/sheet-music.png)
+![Нотный режим](docs/images/sheet-music.ru.png)
 
 ## Как запустить
 
-Нужны **Windows, Node.js 22+, Python 3.10+ и свежий Chrome или Edge**. Для MIDI используется встроенный в Windows WinMM; дополнительные пакеты Python не нужны. Интерфейс пока на русском.
+Нужны **Windows, Node.js 22+, Python 3.10+ и свежий Chrome или Edge**. Для MIDI используется встроенный в Windows WinMM; дополнительные пакеты Python не нужны. Язык интерфейса переключается кнопками **RU / EN** в шапке. Выбор сохраняется в браузере.
 
 ```powershell
 git clone https://github.com/intrider-dev/keys-studio.git

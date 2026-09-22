@@ -1,3 +1,4 @@
+import { t } from "@/lib/i18n";
 import { useEffect, useId, useState } from "react";
 import { ImagePlus, RotateCcw } from "lucide-react";
 import { Input } from "@/components/ui/input";
@@ -31,7 +32,11 @@ export function VisualSettingsPanel({
   useEffect(() => {
     const abort = new AbortController();
     void fetch("/characters/miku.vrm", { method: "HEAD", signal: abort.signal })
-      .then(r => setHasCharacter(r.ok && !r.headers.get("content-type")?.includes("text/html")))
+      .then((r) =>
+        setHasCharacter(
+          r.ok && !r.headers.get("content-type")?.includes("text/html"),
+        ),
+      )
       .catch(() => {});
     return () => abort.abort();
   }, []);
@@ -69,7 +74,8 @@ export function VisualSettingsPanel({
       <section className="space-y-3 rounded-lg border bg-muted/20 p-3">
         <div className="flex items-center justify-between gap-2">
           <Label htmlFor={id + "dancer"}>
-            Мику Хацунэ <Badge variant="secondary">Бета</Badge>
+            {t("Мику Хацунэ ")}
+            <Badge variant="secondary">{t("Бета")}</Badge>
           </Label>
           <Switch
             id={id + "dancer"}
@@ -78,153 +84,175 @@ export function VisualSettingsPanel({
             onCheckedChange={(dancer) => patch({ dancer })}
           />
         </div>
-        {!hasCharacter && <p className="text-xs text-muted-foreground">Модель устанавливается отдельно и не входит в публичную версию.</p>}
+        {t(
+          !hasCharacter && (
+            <p className="text-xs text-muted-foreground">
+              {t(
+                "Модель устанавливается отдельно и не входит в публичную версию.",
+              )}
+            </p>
+          ),
+        )}
         <p className="text-xs leading-relaxed text-muted-foreground">
-          Двигается в ритме BPM. На паузе и при ожидании ноты замирает вместе с
-          дорожкой.
+          {t(
+            "Двигается в ритме BPM. На паузе и при ожидании ноты замирает вместе с дорожкой.",
+          )}
         </p>
-        {v.dancer && (
-          <>
-            <Tabs
-              value={v.dancerMode}
-              onValueChange={(mode) =>
-                patch({ dancerMode: mode as "2d" | "3d" })
-              }
-            >
-              <TabsList
-                className="grid w-full grid-cols-2"
-                aria-label="Вид персонажа"
-              >
-                <TabsTrigger value="2d">2D персонаж</TabsTrigger>
-                <TabsTrigger value="3d">3D персонаж</TabsTrigger>
-              </TabsList>
-            </Tabs>
-            <div className="space-y-2">
-              <Label>Эмоции Мику</Label>
-              <Select
-                value={v.dancerEmotion}
-                onValueChange={(emotion) =>
-                  patch({
-                    dancerEmotion: emotion as VisualSettings["dancerEmotion"],
-                  })
+        {t(
+          v.dancer && (
+            <>
+              <Tabs
+                value={v.dancerMode}
+                onValueChange={(mode) =>
+                  patch({ dancerMode: mode as "2d" | "3d" })
                 }
               >
-                <SelectTrigger aria-label="Эмоции Мику">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="auto">Реагировать на игру</SelectItem>
-                  <SelectItem value="neutral">Спокойствие</SelectItem>
-                  <SelectItem value="happy">Радость</SelectItem>
-                  <SelectItem value="wink">Подмигивание</SelectItem>
-                  <SelectItem value="surprised">Удивление</SelectItem>
-                  <SelectItem value="sad">Грусть</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <p className="text-xs text-muted-foreground">
-              Перетащите Мику мышью или пальцем. После выбора можно двигать
-              стрелками; Shift увеличивает шаг.
-            </p>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => patch({ dancerX: 0.9, dancerY: 0.2 })}
-            >
-              <RotateCcw className="size-3.5" />
-              Вернуть на место
-            </Button>
-            <p className="text-[10px] leading-relaxed text-muted-foreground">
-              Модель: Tda / Jjinomu, дизайн: iXima. © Crypton Future Media.{" "}
-              <a
-                className="underline"
-                href="https://github.com/outrine/HatsuneMiku_VRM_Model"
-                target="_blank"
-                rel="noreferrer"
+                <TabsList
+                  className="grid w-full grid-cols-2"
+                  aria-label={t("Вид персонажа")}
+                >
+                  <TabsTrigger value="2d">{t("2D персонаж")}</TabsTrigger>
+                  <TabsTrigger value="3d">{t("3D персонаж")}</TabsTrigger>
+                </TabsList>
+              </Tabs>
+              <div className="space-y-2">
+                <Label>{t("Эмоции Мику")}</Label>
+                <Select
+                  value={v.dancerEmotion}
+                  onValueChange={(emotion) =>
+                    patch({
+                      dancerEmotion: emotion as VisualSettings["dancerEmotion"],
+                    })
+                  }
+                >
+                  <SelectTrigger aria-label={t("Эмоции Мику")}>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="auto">
+                      {t("Реагировать на игру")}
+                    </SelectItem>
+                    <SelectItem value="neutral">{t("Спокойствие")}</SelectItem>
+                    <SelectItem value="happy">{t("Радость")}</SelectItem>
+                    <SelectItem value="wink">{t("Подмигивание")}</SelectItem>
+                    <SelectItem value="surprised">{t("Удивление")}</SelectItem>
+                    <SelectItem value="sad">{t("Грусть")}</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                {t(
+                  "Перетащите Мику мышью или пальцем. После выбора можно двигать стрелками; Shift увеличивает шаг.",
+                )}
+              </p>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => patch({ dancerX: 0.9, dancerY: 0.2 })}
               >
-                Источник и условия
-              </a>
-              . Для личного некоммерческого использования.
-            </p>
-          </>
+                <RotateCcw className="size-3.5" />
+                {t("Вернуть на место")}
+              </Button>
+              <p className="text-[10px] leading-relaxed text-muted-foreground">
+                {t(
+                  "Модель: Tda / Jjinomu, дизайн: iXima. © Crypton Future Media.",
+                )}
+                {t(" ")}
+                <a
+                  className="underline"
+                  href="https://github.com/outrine/HatsuneMiku_VRM_Model"
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  {t("Источник и условия")}
+                </a>
+                {t(". Для личного некоммерческого использования.")}
+              </p>
+            </>
+          ),
         )}
       </section>
-      {(
-        [
-          {
-            key: "brightness",
-            label: "Яркость поля",
-            min: 0.3,
-            max: 1.8,
-            step: 0.05,
-          },
-          {
-            key: "opacity",
-            label: "Прозрачность дорожки",
-            min: 0,
-            max: 0.85,
-            step: 0.05,
-          },
-          {
-            key: "speed",
-            label: "Расстояние между битами",
-            min: 1.5,
-            max: 7,
-            step: 0.25,
-          },
-        ] as const
-      ).map((x) => (
-        <div key={x.key} className="space-y-3">
-          <Label>
-            {x.label}{" "}
-            <span className="ml-auto tabular-nums text-muted-foreground">
-              {v[x.key].toFixed(2)}
-            </span>
-          </Label>
-          <Slider
-            aria-label={x.label}
-            value={[v[x.key]]}
-            min={x.min}
-            max={x.max}
-            step={x.step}
-            onValueChange={([n]) => patch({ [x.key]: n })}
-          />
-        </div>
-      ))}
-      <p className="text-xs text-muted-foreground">
-        Расстояние меняет вид дорожки, сохраняя BPM и момент нажатия.
-      </p>
-      <div className="grid grid-cols-2 gap-3">
-        {(["right", "left"] as const).map((k) => (
-          <div key={k} className="space-y-2">
-            <Label htmlFor={id + k}>
-              {k === "right" ? "Правая рука" : "Левая рука"}
+      {t(
+        (
+          [
+            {
+              key: "brightness",
+              label: "Яркость поля",
+              min: 0.3,
+              max: 1.8,
+              step: 0.05,
+            },
+            {
+              key: "opacity",
+              label: "Прозрачность дорожки",
+              min: 0,
+              max: 0.85,
+              step: 0.05,
+            },
+            {
+              key: "speed",
+              label: "Расстояние между битами",
+              min: 1.5,
+              max: 7,
+              step: 0.25,
+            },
+          ] as const
+        ).map((x) => (
+          <div key={x.key} className="space-y-3">
+            <Label>
+              {t(x.label)}
+              {t(" ")}
+              <span className="ml-auto tabular-nums text-muted-foreground">
+                {t(v[x.key].toFixed(2))}
+              </span>
             </Label>
-            <Input
-              id={id + k}
-              type="color"
-              value={v[k]}
-              onChange={(e) => patch({ [k]: e.target.value })}
+            <Slider
+              aria-label={t(x.label)}
+              value={[v[x.key]]}
+              min={x.min}
+              max={x.max}
+              step={x.step}
+              onValueChange={([n]) => patch({ [x.key]: n })}
             />
           </div>
-        ))}
+        )),
+      )}
+      <p className="text-xs text-muted-foreground">
+        {t("Расстояние меняет вид дорожки, сохраняя BPM и момент нажатия.")}
+      </p>
+      <div className="grid grid-cols-2 gap-3">
+        {t(
+          (["right", "left"] as const).map((k) => (
+            <div key={k} className="space-y-2">
+              <Label htmlFor={id + k}>
+                {t(k === "right" ? "Правая рука" : "Левая рука")}
+              </Label>
+              <Input
+                id={id + k}
+                type="color"
+                value={v[k]}
+                onChange={(e) => patch({ [k]: e.target.value })}
+              />
+            </div>
+          )),
+        )}
       </div>
       <div className="space-y-2">
-        <Label>Фон</Label>
+        <Label>{t("Фон")}</Label>
         <Select
           value={v.background}
           onValueChange={(background) =>
             patch({ background: background as VisualSettings["background"] })
           }
         >
-          <SelectTrigger aria-label="Фон поля">
+          <SelectTrigger aria-label={t("Фон поля")}>
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="plain">Тёмный</SelectItem>
-            <SelectItem value="aurora">Северное сияние</SelectItem>
-            <SelectItem value="sunset">Закат</SelectItem>
-            <SelectItem value="image">Моя картинка</SelectItem>
+            <SelectItem value="plain">{t("Тёмный")}</SelectItem>
+            <SelectItem value="aurora">{t("Северное сияние")}</SelectItem>
+            <SelectItem value="sunset">{t("Закат")}</SelectItem>
+            <SelectItem value="image">{t("Моя картинка")}</SelectItem>
           </SelectContent>
         </Select>
       </div>
@@ -233,7 +261,7 @@ export function VisualSettingsPanel({
         className="cursor-pointer rounded-md border p-3"
       >
         <ImagePlus className="size-4" />
-        Загрузить картинку
+        {t("Загрузить картинку")}
       </Label>
       <input
         id={id + "image"}
@@ -242,10 +270,12 @@ export function VisualSettingsPanel({
         accept="image/png,image/jpeg,image/webp"
         onChange={(e) => void image(e.target.files?.[0])}
       />
-      {error && (
-        <p role="alert" className="text-xs text-destructive">
-          {error}
-        </p>
+      {t(
+        error && (
+          <p role="alert" className="text-xs text-destructive">
+            {t(error)}
+          </p>
+        ),
       )}
       <Button
         variant="outline"
@@ -253,11 +283,12 @@ export function VisualSettingsPanel({
         onClick={() => onChange({ ...DEFAULT_SETTINGS.visual })}
       >
         <RotateCcw className="size-4" />
-        Сбросить оформление
+        {t("Сбросить оформление")}
       </Button>
       <p className="text-xs text-muted-foreground">
-        Оформление автоматически сохраняется для этого произведения и включается
-        в файл для обмена.
+        {t(
+          "Оформление автоматически сохраняется для этого произведения и включается в файл для обмена.",
+        )}
       </p>
     </div>
   );

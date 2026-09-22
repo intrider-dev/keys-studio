@@ -1,3 +1,4 @@
+import { t } from "@/lib/i18n";
 import { InstrumentPicker } from "./instrument-picker";
 import { VisualSettingsPanel } from "./visual-settings";
 import { Palette } from "lucide-react";
@@ -67,7 +68,7 @@ export function NumericField({
   return (
     <div className="grid gap-2">
       <Label htmlFor={inputId} className="text-xs text-muted-foreground">
-        {label}
+        {t(label)}
       </Label>
       <Input
         id={inputId}
@@ -104,12 +105,14 @@ function ToggleSetting({
     <div className="flex items-center justify-between gap-4">
       <div className="space-y-1">
         <Label htmlFor={id} className="text-sm font-normal leading-snug">
-          {label}
+          {t(label)}
         </Label>
-        {description && (
-          <p className="text-xs leading-relaxed text-muted-foreground">
-            {description}
-          </p>
+        {t(
+          description && (
+            <p className="text-xs leading-relaxed text-muted-foreground">
+              {t(description)}
+            </p>
+          ),
         )}
       </div>
       <Switch id={id} checked={checked} onCheckedChange={onChange} />
@@ -133,18 +136,20 @@ export function Choice({
   return (
     <div className="grid gap-2">
       <Label htmlFor={id} className="text-xs text-muted-foreground">
-        {label}
+        {t(label)}
       </Label>
       <Select value={value} onValueChange={onChange}>
         <SelectTrigger id={id} className="w-full">
           <SelectValue />
         </SelectTrigger>
         <SelectContent>
-          {options.map((option) => (
-            <SelectItem key={option.value} value={option.value}>
-              {option.label}
-            </SelectItem>
-          ))}
+          {t(
+            options.map((option) => (
+              <SelectItem key={option.value} value={option.value}>
+                {t(option.label)}
+              </SelectItem>
+            )),
+          )}
         </SelectContent>
       </Select>
     </div>
@@ -160,8 +165,8 @@ function GroupTitle({
 }) {
   return (
     <h3 className="mb-4 flex items-center gap-2 text-sm font-medium">
-      {icon}
-      {children}
+      {t(icon)}
+      {t(children)}
     </h3>
   );
 }
@@ -179,10 +184,10 @@ export function SettingsPanel({
       <CardHeader className="px-5 pb-0">
         <CardTitle className="flex items-center gap-2 text-base">
           <SlidersHorizontal className="size-4 text-muted-foreground" />
-          Настройки
+          {t("Настройки")}
         </CardTitle>
         <CardDescription className="text-xs">
-          Подстройте практику под себя
+          {t("Подстройте практику под себя")}
         </CardDescription>
       </CardHeader>
       <CardContent className="px-5">
@@ -190,15 +195,15 @@ export function SettingsPanel({
           <TabsList className="mb-5 grid w-full grid-cols-3">
             <TabsTrigger value="practice">
               <Gauge className="size-3.5" />
-              Игра
+              {t("Игра")}
             </TabsTrigger>
             <TabsTrigger value="audio">
               <Volume2 className="size-3.5" />
-              Звук
+              {t("Звук")}
             </TabsTrigger>
             <TabsTrigger value="visual">
               <Palette className="size-3.5" />
-              Поле
+              {t("Поле")}
             </TabsTrigger>
           </TabsList>
           <TabsContent value="visual">
@@ -211,17 +216,18 @@ export function SettingsPanel({
             <section>
               <div className="mb-4 flex items-center justify-between">
                 <Label htmlFor="bpm" className="text-sm">
-                  Темп
+                  {t("Темп")}
                 </Label>
                 <Badge variant="secondary" className="font-normal">
-                  Оригинал {state.song.bpm}
+                  {t("Оригинал ")}
+                  {t(state.song.bpm)}
                 </Badge>
               </div>
               <div className="mb-4 flex items-end gap-3">
                 <div className="min-w-0 flex-1">
                   <NumericField
                     id="bpm"
-                    label="Ударов в минуту"
+                    label={t("Ударов в минуту")}
                     value={s.bpm}
                     min={30}
                     max={240}
@@ -232,7 +238,7 @@ export function SettingsPanel({
                 <span className="pb-4 text-xs text-muted-foreground">BPM</span>
               </div>
               <Slider
-                aria-label="Темп"
+                aria-label={t("Темп")}
                 value={[s.bpm]}
                 min={30}
                 max={240}
@@ -240,8 +246,8 @@ export function SettingsPanel({
                 onValueChange={([bpm]) => update({ bpm })}
               />
               <div className="mt-2 flex justify-between text-[10px] tabular-nums text-muted-foreground">
-                <span>30 · медленно</span>
-                <span>240 · быстро</span>
+                <span>{t("30 · медленно")}</span>
+                <span>{t("240 · быстро")}</span>
               </div>
             </section>
             <Separator />
@@ -249,7 +255,7 @@ export function SettingsPanel({
               <GroupTitle
                 icon={<Hand className="size-4 text-muted-foreground" />}
               >
-                Партия
+                {t("Партия")}
               </GroupTitle>
               <Tabs
                 value={s.hand}
@@ -259,22 +265,24 @@ export function SettingsPanel({
               >
                 <TabsList
                   className="grid w-full grid-cols-3"
-                  aria-label="Выбор руки"
+                  aria-label={t("Выбор руки")}
                 >
-                  <TabsTrigger value="left">Левая</TabsTrigger>
-                  <TabsTrigger value="right">Правая</TabsTrigger>
-                  <TabsTrigger value="both">Обе</TabsTrigger>
+                  <TabsTrigger value="left">{t("Левая")}</TabsTrigger>
+                  <TabsTrigger value="right">{t("Правая")}</TabsTrigger>
+                  <TabsTrigger value="both">{t("Обе")}</TabsTrigger>
                 </TabsList>
               </Tabs>
               <p className="mt-3 text-xs leading-relaxed text-muted-foreground">
-                {s.hand === "both"
-                  ? "Тренируйте координацию двух рук."
-                  : "Сначала разберите одну партию, затем соедините руки."}
+                {t(
+                  s.hand === "both"
+                    ? "Тренируйте координацию двух рук."
+                    : "Сначала разберите одну партию, затем соедините руки.",
+                )}
               </p>
             </section>
             <Choice
               id="difficulty"
-              label="Точность ритма"
+              label={t("Точность ритма")}
               value={String(s.window)}
               onChange={(value) => update({ window: Number(value) })}
               options={[
@@ -285,8 +293,8 @@ export function SettingsPanel({
             />
             <ToggleSetting
               id="hold"
-              label="Удержание нот"
-              description="Учитывать длительность в игровом режиме"
+              label={t("Удержание нот")}
+              description={t("Учитывать длительность в игровом режиме")}
               checked={s.hold}
               onChange={(hold) => update({ hold })}
             />
@@ -295,12 +303,12 @@ export function SettingsPanel({
               <GroupTitle
                 icon={<Repeat2 className="size-4 text-muted-foreground" />}
               >
-                Фрагмент
+                {t("Фрагмент")}
               </GroupTitle>
               <div className="mb-4 grid grid-cols-2 gap-3">
                 <NumericField
                   id="loopstart"
-                  label="С такта"
+                  label={t("С такта")}
                   value={s.firstBar}
                   min={1}
                   max={state.song.bars}
@@ -308,7 +316,7 @@ export function SettingsPanel({
                 />
                 <NumericField
                   id="loopend"
-                  label="По такт"
+                  label={t("По такт")}
                   value={s.lastBar}
                   min={s.firstBar}
                   max={state.song.bars}
@@ -317,36 +325,39 @@ export function SettingsPanel({
               </div>
               <ToggleSetting
                 id="loop"
-                label="Повторять фрагмент"
+                label={t("Повторять фрагмент")}
                 checked={s.loop}
                 onChange={(loop) => update({ loop })}
               />
             </section>
             <p className="rounded-lg bg-muted/50 p-3 text-xs leading-relaxed text-muted-foreground">
-              Темп можно менять во время игры. Изменение партии или точности начинает новую попытку.
+              {t(
+                "Темп можно менять во время игры. Изменение партии или точности начинает новую попытку.",
+              )}
             </p>
           </TabsContent>
           <TabsContent value="audio" className="space-y-5">
             <div className="space-y-2">
-              <Label>Инструмент</Label>
+              <Label>{t("Инструмент")}</Label>
               <InstrumentPicker
                 value={s.instrument}
                 onChange={(instrument) => update({ instrument })}
               />
               <p className="text-xs text-muted-foreground">
-                128 тембров. В браузере звучат локальные сэмплы; на Yamaha
-                выбранный тембр применяется к MIDI-сопровождению при запуске.
+                {t(
+                  "128 тембров. В браузере используются локальные сэмплы, а без них простой синтезированный звук. На Yamaha тембр можно менять во время игры.",
+                )}
               </p>
             </div>
             <section>
               <GroupTitle
                 icon={<Headphones className="size-4 text-muted-foreground" />}
               >
-                Воспроизведение
+                {t("Воспроизведение")}
               </GroupTitle>
               <Choice
                 id="sound"
-                label="Звук сопровождения"
+                label={t("Звук сопровождения")}
                 value={s.sound}
                 onChange={(sound) =>
                   update({ sound: sound as Settings["sound"] })
@@ -360,15 +371,15 @@ export function SettingsPanel({
             </section>
             <ToggleSetting
               id="backing"
-              label="Подыгрывать другой рукой"
-              description="Сопровождение для выбранной партии"
+              label={t("Подыгрывать другой рукой")}
+              description={t("Сопровождение для выбранной партии")}
               checked={s.backing}
               onChange={(backing) => update({ backing })}
             />
             <ToggleSetting
               id="metro"
-              label="Метроном"
-              description="Держать темп по щелчкам"
+              label={t("Метроном")}
+              description={t("Держать темп по щелчкам")}
               checked={s.metronome}
               onChange={(metronome) => update({ metronome })}
             />
@@ -377,19 +388,20 @@ export function SettingsPanel({
               <GroupTitle
                 icon={<Clock3 className="size-4 text-muted-foreground" />}
               >
-                Синхронизация
+                {t("Синхронизация")}
               </GroupTitle>
               <NumericField
                 id="latency"
-                label="Поправка задержки, мс"
+                label={t("Поправка задержки, мс")}
                 value={s.latency}
                 min={-250}
                 max={250}
                 onChange={(latency) => update({ latency })}
               />
               <p className="mt-3 text-xs leading-relaxed text-muted-foreground">
-                Если нажатия стабильно опаздывают, добавьте положительную
-                поправку.
+                {t(
+                  "Если нажатия стабильно опаздывают, добавьте положительную поправку.",
+                )}
               </p>
             </section>
           </TabsContent>

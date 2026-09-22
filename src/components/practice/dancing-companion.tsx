@@ -1,3 +1,4 @@
+import { t } from "@/lib/i18n";
 import { useEffect, useRef, useState } from "react";
 import { Grip, LoaderCircle } from "lucide-react";
 import { clampPosition } from "@/features/practice/dance";
@@ -103,8 +104,8 @@ export function DancingCompanion({
         ref={box}
         role="button"
         tabIndex={0}
-        aria-label="Танцующий персонаж. Перетащите или используйте стрелки"
-        title="Перетащите персонажа в удобное место"
+        aria-label={t("Танцующий персонаж. Перетащите или используйте стрелки")}
+        title={t("Перетащите персонажа в удобное место")}
         className="pointer-events-auto absolute w-28 touch-none select-none rounded-xl outline-none focus-visible:ring-2 focus-visible:ring-primary sm:w-40"
         style={{
           left: `${visual.dancerX * 100}%`,
@@ -181,28 +182,34 @@ export function DancingCompanion({
       >
         <div className="pointer-events-none relative aspect-[192/256]">
           <div ref={canvas} className="size-full" aria-hidden="true" />
-          {status === "loading" && (
-            <div
-              role="status"
-              className="absolute inset-0 flex flex-col items-center justify-center gap-2 rounded-lg bg-background/60 text-xs"
-            >
-              <LoaderCircle className="size-5 animate-spin" />
-              Загружаю Мику…
-            </div>
+          {t(
+            status === "loading" && (
+              <div
+                role="status"
+                className="absolute inset-0 flex flex-col items-center justify-center gap-2 rounded-lg bg-background/60 text-xs"
+              >
+                <LoaderCircle className="size-5 animate-spin" />
+                {t("Загружаю Мику…")}
+              </div>
+            ),
           )}
-          {status === "error" && (
-            <div
-              role="alert"
-              className="absolute inset-0 flex items-center rounded-lg bg-background/80 p-3 text-xs"
-            >
-              Не удалось загрузить Мику. Переключите режим или обновите
-              страницу.
-            </div>
+          {t(
+            status === "error" && (
+              <div
+                role="alert"
+                className="absolute inset-0 flex items-center rounded-lg bg-background/80 p-3 text-xs"
+              >
+                {t(
+                  "Не удалось загрузить Мику. Переключите режим или обновите страницу.",
+                )}
+              </div>
+            ),
           )}
         </div>
         <div className="mx-auto flex w-fit items-center gap-1 rounded-full border border-white/15 bg-background/80 px-2 py-1 text-[9px] text-muted-foreground">
           <Grip className="size-3" />
-          Мику · {flat ? "2D" : "3D"}
+          {t("Мику · ")}
+          {t(flat ? "2D" : "3D")}
         </div>
       </div>
     </div>

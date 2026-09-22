@@ -1,3 +1,4 @@
+import { t } from "@/lib/i18n";
 import { useEffect, useRef, useState } from "react";
 import {
   Maximize2,
@@ -108,7 +109,9 @@ export function PianoStage({
     title = feedbackLabels[feedback.type];
     detail = feedback.pitch === undefined ? "" : noteName(feedback.pitch);
     if (feedback.delta !== undefined && state.settings.mode === "game")
-      detail += ` · ${feedback.delta >= 0 ? "+" : ""}${Math.round(feedback.delta)} мс`;
+      detail += t(
+        ` · ${feedback.delta >= 0 ? "+" : ""}${Math.round(feedback.delta)} мс`,
+      );
     else if (feedback.points) detail += ` · +${feedback.points}`;
   } else if (state.running && state.beat < state.start) {
     title = String(Math.ceil(state.start - state.beat));
@@ -129,16 +132,20 @@ export function PianoStage({
   return (
     <section
       ref={frame}
-      aria-label={
-        viewMode === "sheet" ? "Нотный лист" : viewMode === "top"
-          ? "Дорожка нот и клавиатура сверху"
-          : "Объёмная дорожка нот и клавиатура"
-      }
+      aria-label={t(
+        viewMode === "sheet"
+          ? "Нотный лист"
+          : viewMode === "top"
+            ? "Дорожка нот и клавиатура сверху"
+            : "Объёмная дорожка нот и клавиатура",
+      )}
       className={cn(
         "relative isolate overflow-hidden rounded-xl border border-border/70 bg-[#080d1a]",
         fullscreen
           ? "h-screen w-screen rounded-none"
-          : viewMode === "sheet" ? "h-[480px] sm:h-[clamp(460px,calc(100svh-400px),720px)]" : "h-[380px] sm:h-[clamp(300px,calc(100svh-590px),560px)]",
+          : viewMode === "sheet"
+            ? "h-[480px] sm:h-[clamp(460px,calc(100svh-400px),720px)]"
+            : "h-[380px] sm:h-[clamp(300px,calc(100svh-590px),560px)]",
       )}
     >
       <div
@@ -156,53 +163,111 @@ export function PianoStage({
         }}
       />
       <div
-        style={{ filter: `brightness(${state.settings.visual.brightness})`, visibility: viewMode === "sheet" ? "hidden" : "visible" }}
+        style={{
+          filter: `brightness(${state.settings.visual.brightness})`,
+          visibility: viewMode === "sheet" ? "hidden" : "visible",
+        }}
         ref={host}
         id="canvas"
         className="absolute inset-0 touch-none [&_canvas]:block [&_canvas]:size-full"
       />
-      {viewMode === "sheet" && <SheetMusic state={state} session={session} fullscreen={fullscreen} />}
-      <div className={cn("pointer-events-none absolute inset-x-0 z-30 flex items-start justify-between gap-2 bg-gradient-to-b from-black/45 to-transparent p-4 sm:p-5", fullscreen ? "top-28 sm:top-20 lg:top-0" : "top-0")}>
-        <div className={cn("hidden flex-wrap items-center gap-2", fullscreen ? "lg:flex" : "sm:flex")}>
+      {t(
+        viewMode === "sheet" && (
+          <SheetMusic state={state} session={session} fullscreen={fullscreen} />
+        ),
+      )}
+      <div
+        className={cn(
+          "pointer-events-none absolute inset-x-0 z-30 flex items-start justify-between gap-2 bg-gradient-to-b from-black/45 to-transparent p-4 sm:p-5",
+          fullscreen ? "top-28 sm:top-20 lg:top-0" : "top-0",
+        )}
+      >
+        <div
+          className={cn(
+            "hidden flex-wrap items-center gap-2",
+            fullscreen ? "lg:flex" : "sm:flex",
+          )}
+        >
           <Badge
             variant="outline"
             className="border-white/15 bg-black/25 text-xs font-normal text-white/80"
           >
             <Piano className="size-3" />
-            {state.preview ? "Прослушивание" : handLabels[state.settings.hand]}
+            {t(
+              state.preview ? "Прослушивание" : handLabels[state.settings.hand],
+            )}
           </Badge>
-          <span className={cn("text-[11px] text-white/45", fullscreen ? "hidden" : "hidden sm:inline")}>
-            C2–C7 · 61 клавиша
+          <span
+            className={cn(
+              "text-[11px] text-white/45",
+              fullscreen ? "hidden" : "hidden sm:inline",
+            )}
+          >
+            {t("C2–C7 · 61 клавиша")}
           </span>
         </div>
         <div className="ml-auto flex shrink-0 items-center gap-3">
           <Tabs
             value={viewMode}
-            onValueChange={(value) => setViewMode(value as "top" | "3d" | "sheet")}
+            onValueChange={(value) =>
+              setViewMode(value as "top" | "3d" | "sheet")
+            }
             className="pointer-events-auto"
           >
-            <TabsList aria-label="Вид дорожки" className="h-8 bg-background/90">
-              {([
-                ["sheet", "Ноты", FileMusic],
-                ["top", "Сверху", PanelsTopLeft],
-                ["3d", "3D", Box],
-              ] as const).map(([value, label, Icon]) => <TabsTrigger
-                key={value} value={value} aria-label={label}
-                className="min-w-8 flex-none gap-0 px-2 text-xs"
-                onMouseEnter={() => setExpandedView(value)}
-                onMouseLeave={() => setExpandedView(null)}
-                onFocus={event => { if (event.currentTarget.matches(":focus-visible")) setExpandedView(value); }}
-                onBlur={() => setExpandedView(null)}
-              >
-                <Icon aria-hidden="true" className="size-3.5 shrink-0" />
-                <span aria-hidden="true" className={cn("origin-left overflow-hidden whitespace-nowrap transition-[max-width,opacity,transform,margin] duration-200 ease-out motion-reduce:transition-none", expandedView === value ? "ml-1.5 max-w-16 scale-100 opacity-100" : "ml-0 max-w-0 scale-75 opacity-0")}>{label}</span>
-              </TabsTrigger>)}
+            <TabsList
+              aria-label={t("Вид дорожки")}
+              className="h-8 bg-background/90"
+            >
+              {t(
+                (
+                  [
+                    ["sheet", "Ноты", FileMusic],
+                    ["top", "Сверху", PanelsTopLeft],
+                    ["3d", "3D", Box],
+                  ] as const
+                ).map(([value, label, Icon]) => (
+                  <TabsTrigger
+                    key={value}
+                    value={value}
+                    aria-label={t(label)}
+                    className="min-w-8 flex-none gap-0 px-2 text-xs"
+                    onMouseEnter={() => setExpandedView(value)}
+                    onMouseLeave={() => setExpandedView(null)}
+                    onFocus={(event) => {
+                      if (event.currentTarget.matches(":focus-visible"))
+                        setExpandedView(value);
+                    }}
+                    onBlur={() => setExpandedView(null)}
+                  >
+                    <Icon aria-hidden="true" className="size-3.5 shrink-0" />
+                    <span
+                      aria-hidden="true"
+                      className={cn(
+                        "origin-left overflow-hidden whitespace-nowrap transition-[max-width,opacity,transform,margin] duration-200 ease-out motion-reduce:transition-none",
+                        expandedView === value
+                          ? "ml-1.5 max-w-16 scale-100 opacity-100"
+                          : "ml-0 max-w-0 scale-75 opacity-0",
+                      )}
+                    >
+                      {t(label)}
+                    </span>
+                  </TabsTrigger>
+                )),
+              )}
             </TabsList>
           </Tabs>
-          <span id="livekey" className={cn("text-xs text-white/65", fullscreen ? "hidden" : "hidden sm:block")}>
-            {state.lastKey
-              ? `${noteName(state.lastKey.pitch)} · ${state.lastKey.source}`
-              : "Нажмите клавишу Yamaha"}
+          <span
+            id="livekey"
+            className={cn(
+              "text-xs text-white/65",
+              fullscreen ? "hidden" : "hidden sm:block",
+            )}
+          >
+            {t(
+              state.lastKey
+                ? `${noteName(state.lastKey.pitch)} · ${t(state.lastKey.source)}`
+                : "Нажмите клавишу Yamaha",
+            )}
           </span>
           <Tooltip>
             <TooltipTrigger asChild>
@@ -210,9 +275,9 @@ export function PianoStage({
                 variant="ghost"
                 size="icon"
                 className="pointer-events-auto size-7 text-white/65 hover:bg-white/10 hover:text-white"
-                aria-label={
-                  fullscreen ? "Выйти из полного экрана" : "На весь экран"
-                }
+                aria-label={t(
+                  fullscreen ? "Выйти из полного экрана" : "На весь экран",
+                )}
                 onClick={() => {
                   void (
                     fullscreen
@@ -223,138 +288,176 @@ export function PianoStage({
                   );
                 }}
               >
-                {fullscreen ? <Minimize2 /> : <Maximize2 />}
+                {t(fullscreen ? <Minimize2 /> : <Maximize2 />)}
               </Button>
             </TooltipTrigger>
             <TooltipContent>
-              {fullscreen ? "Выйти из полного экрана" : "На весь экран"}
+              {t(fullscreen ? "Выйти из полного экрана" : "На весь экран")}
             </TooltipContent>
           </Tooltip>
         </div>
       </div>
-      {viewMode !== "sheet" && (title || error) && (
-        <div
-          id="feedback"
-          className="pointer-events-none absolute inset-x-3 top-[22%] flex flex-col items-center text-center"
-        >
-          <div className="max-w-md rounded-2xl bg-background/75 px-7 py-4 shadow-lg backdrop-blur-md">
-            {error && (
-              <AlertTriangle className="mx-auto mb-3 size-6 text-destructive" />
-            )}
-            <strong
-              className={cn(
-                "block text-xl font-semibold tracking-tight text-white sm:text-2xl",
-                feedback &&
-                  (isError(feedback.type)
-                    ? "text-rose-300"
-                    : isTiming(feedback.type)
-                      ? "text-amber-300"
-                      : "text-emerald-300"),
-              )}
-            >
-              {error || title}
-            </strong>
-            {!error && (
-              <span className="mt-2 block text-xs text-white/60">{detail}</span>
-            )}
-          </div>
-        </div>
-      )}
-      {viewMode !== "sheet" && <div className="pointer-events-none absolute inset-x-4 bottom-2 flex justify-between text-[9px] uppercase tracking-wider text-white/35">
-        <span>Линия нажатия</span>
-        <span>Нажимайте у края клавиатуры</span>
-      </div>}
-      {state.settings.visual.dancer && (
-        <DancingCompanion
-          key={state.song.id ?? state.song.name}
-          session={session}
-          visual={state.settings.visual}
-        />
-      )}
-      {fullscreen && (
-        <div aria-label="Управление в полном экране" role="group" className="absolute left-1/2 top-4 z-30 flex w-max max-w-[calc(100%-2rem)] -translate-x-1/2 flex-wrap items-center justify-center gap-3 rounded-lg border border-white/10 bg-background/90 px-4 py-2 text-sm tabular-nums lg:max-w-[calc(100%-32rem)]">
-          {!state.preview && <>
-            <span className="text-primary">{state.score} очков</span>
-            <span>{state.combo} подряд</span>
-          </>}
-          <Button
-            size="sm"
-            disabled={state.loading}
-            onClick={() =>
-              state.preview ? session.reset() : void session.toggle()
-            }
+      {t(
+        viewMode !== "sheet" && (title || error) && (
+          <div
+            id="feedback"
+            className="pointer-events-none absolute inset-x-3 top-[22%] flex flex-col items-center text-center"
           >
-            {state.preview ? (
-              <Square className="size-4" />
-            ) : (
-              <PlaybackIcon
-                loading={state.loading}
-                running={state.running}
-              />
+            <div className="max-w-md rounded-2xl bg-background/75 px-7 py-4 shadow-lg backdrop-blur-md">
+              {t(
+                error && (
+                  <AlertTriangle className="mx-auto mb-3 size-6 text-destructive" />
+                ),
+              )}
+              <strong
+                className={cn(
+                  "block text-xl font-semibold tracking-tight text-white sm:text-2xl",
+                  feedback &&
+                    (isError(feedback.type)
+                      ? "text-rose-300"
+                      : isTiming(feedback.type)
+                        ? "text-amber-300"
+                        : "text-emerald-300"),
+                )}
+              >
+                {t(error || title)}
+              </strong>
+              {t(
+                !error && (
+                  <span className="mt-2 block text-xs text-white/60">
+                    {t(detail)}
+                  </span>
+                ),
+              )}
+            </div>
+          </div>
+        ),
+      )}
+      {t(
+        viewMode !== "sheet" && (
+          <div className="pointer-events-none absolute inset-x-4 bottom-2 flex justify-between text-[9px] uppercase tracking-wider text-white/35">
+            <span>{t("Линия нажатия")}</span>
+            <span>{t("Нажимайте у края клавиатуры")}</span>
+          </div>
+        ),
+      )}
+      {t(
+        state.settings.visual.dancer && (
+          <DancingCompanion
+            key={state.song.id ?? state.song.name}
+            session={session}
+            visual={state.settings.visual}
+          />
+        ),
+      )}
+      {t(
+        fullscreen && (
+          <div
+            aria-label={t("Управление в полном экране")}
+            role="group"
+            className="absolute left-1/2 top-4 z-30 flex w-max max-w-[calc(100%-2rem)] -translate-x-1/2 flex-wrap items-center justify-center gap-3 rounded-lg border border-white/10 bg-background/90 px-4 py-2 text-sm tabular-nums lg:max-w-[calc(100%-32rem)]"
+          >
+            {t(
+              !state.preview && (
+                <>
+                  <span className="text-primary">
+                    {t(state.score)}
+                    {t(" очков")}
+                  </span>
+                  <span>
+                    {t(state.combo)}
+                    {t(" подряд")}
+                  </span>
+                </>
+              ),
             )}
-            {state.preview
-              ? "Стоп"
-              : state.loading
-                ? "Подготовка…"
-                : state.running
-                  ? state.preview
-                    ? "Стоп"
-                    : "Пауза"
-                  : "Начать"}
-          </Button>
-          {state.preview && (
             <Button
               size="sm"
-              variant="outline"
               disabled={state.loading}
-              onClick={() => void session.togglePause()}
+              onClick={() =>
+                state.preview ? session.reset() : void session.toggle()
+              }
             >
-              {state.running ? (
-                <Pause className="size-4" />
-              ) : (
-                <Play className="size-4" />
+              {t(
+                state.preview ? (
+                  <Square className="size-4" />
+                ) : (
+                  <PlaybackIcon
+                    loading={state.loading}
+                    running={state.running}
+                  />
+                ),
               )}
-              {state.running ? "Пауза" : "Продолжить"}
+              {t(
+                state.preview
+                  ? "Стоп"
+                  : state.loading
+                    ? "Подготовка…"
+                    : state.running
+                      ? state.preview
+                        ? "Стоп"
+                        : "Пауза"
+                      : "Начать",
+              )}
             </Button>
-          )}
-          <Button
-            size="icon-sm"
-            variant="ghost"
-            aria-label="Начать заново"
-            onClick={() => session.reset()}
-          >
-            <RotateCcw className="size-4" />
-          </Button>
-          <div className="flex items-center gap-1 border-l border-border pl-2">
+            {t(
+              state.preview && (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  disabled={state.loading}
+                  onClick={() => void session.togglePause()}
+                >
+                  {t(
+                    state.running ? (
+                      <Pause className="size-4" />
+                    ) : (
+                      <Play className="size-4" />
+                    ),
+                  )}
+                  {t(state.running ? "Пауза" : "Продолжить")}
+                </Button>
+              ),
+            )}
             <Button
               size="icon-sm"
               variant="ghost"
-              aria-label="Уменьшить темп на 5 BPM"
-              disabled={state.settings.bpm <= 30}
-              onClick={() =>
-                session.updateSettings({
-                  bpm: Math.max(30, state.settings.bpm - 5),
-                })
-              }
+              aria-label={t("Начать заново")}
+              onClick={() => session.reset()}
             >
-              <Minus className="size-3.5" />
+              <RotateCcw className="size-4" />
             </Button>
-            <span className="text-xs">{state.settings.bpm} BPM</span>
-            <Button
-              size="icon-sm"
-              variant="ghost"
-              aria-label="Увеличить темп на 5 BPM"
-              disabled={state.settings.bpm >= 240}
-              onClick={() =>
-                session.updateSettings({
-                  bpm: Math.min(240, state.settings.bpm + 5),
-                })
-              }
-            >
-              <Plus className="size-3.5" />
-            </Button>
+            <div className="flex items-center gap-1 border-l border-border pl-2">
+              <Button
+                size="icon-sm"
+                variant="ghost"
+                aria-label={t("Уменьшить темп на 5 BPM")}
+                disabled={state.settings.bpm <= 30}
+                onClick={() =>
+                  session.updateSettings({
+                    bpm: Math.max(30, state.settings.bpm - 5),
+                  })
+                }
+              >
+                <Minus className="size-3.5" />
+              </Button>
+              <span className="text-xs">{t(state.settings.bpm)} BPM</span>
+              <Button
+                size="icon-sm"
+                variant="ghost"
+                aria-label={t("Увеличить темп на 5 BPM")}
+                disabled={state.settings.bpm >= 240}
+                onClick={() =>
+                  session.updateSettings({
+                    bpm: Math.min(240, state.settings.bpm + 5),
+                  })
+                }
+              >
+                <Plus className="size-3.5" />
+              </Button>
+            </div>
           </div>
-        </div>
+        ),
       )}
     </section>
   );

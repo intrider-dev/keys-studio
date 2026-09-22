@@ -1,3 +1,4 @@
+import { t } from "@/lib/i18n";
 import { Trophy, RotateCcw } from "lucide-react";
 import {
   Dialog,
@@ -33,48 +34,62 @@ export function ResultDialog({
             <Trophy className="size-6" />
           </div>
           <DialogTitle className="text-2xl">
-            {result?.testInput
-              ? "Проверка завершена"
-              : (result?.accuracy ?? 0) >= 85
-                ? "Получается уверенно!"
-                : "Ещё на шаг ближе"}
+            {t(
+              result?.testInput
+                ? "Проверка завершена"
+                : (result?.accuracy ?? 0) >= 85
+                  ? "Получается уверенно!"
+                  : "Ещё на шаг ближе",
+            )}
           </DialogTitle>
           <DialogDescription>
-            {result?.testInput
-              ? "Игра с компьютерной клавиатуры не меняет личные рекорды."
-              : "Попытка завершена. Повторите фрагмент или переходите дальше."}
+            {t(
+              result?.testInput
+                ? "Игра с компьютерной клавиатуры не меняет личные рекорды."
+                : "Попытка завершена. Повторите фрагмент или переходите дальше.",
+            )}
           </DialogDescription>
         </DialogHeader>
-        {result && (
-          <div className="my-3 grid grid-cols-2 gap-5">
-            {[
-              ["Счёт", number.format(result.score)],
-              ["Точность", `${result.accuracy ?? 0}%`],
-              ["Лучшая серия", result.combo],
-              ["Ошибки", result.misses + result.wrong + result.short],
-            ].map(([label, value]) => (
-              <div key={label}>
-                <p className="text-xs text-muted-foreground">{label}</p>
-                <strong className="mt-1 block text-3xl font-semibold tabular-nums">
-                  {value}
-                </strong>
-              </div>
-            ))}
-          </div>
+        {t(
+          result && (
+            <div className="my-3 grid grid-cols-2 gap-5">
+              {t(
+                [
+                  ["Счёт", number.format(result.score)],
+                  ["Точность", `${result.accuracy ?? 0}%`],
+                  ["Лучшая серия", result.combo],
+                  ["Ошибки", result.misses + result.wrong + result.short],
+                ].map(([label, value]) => (
+                  <div key={label}>
+                    <p className="text-xs text-muted-foreground">{t(label)}</p>
+                    <strong className="mt-1 block text-3xl font-semibold tabular-nums">
+                      {t(value)}
+                    </strong>
+                  </div>
+                )),
+              )}
+            </div>
+          ),
         )}
-        {result && (
-          <p className="text-xs text-muted-foreground">
-            Пропуски: {result.misses} · Неверные ноты: {result.wrong} ·
-            Удержание: {result.short}
-          </p>
+        {t(
+          result && (
+            <p className="text-xs text-muted-foreground">
+              {t("Пропуски: ")}
+              {t(result.misses)}
+              {t(" · Неверные ноты: ")}
+              {t(result.wrong)}
+              {t(" · Удержание: ")}
+              {t(result.short)}
+            </p>
+          ),
         )}
         <DialogFooter>
           <Button id="closeResult" variant="outline" onClick={onClose}>
-            Закрыть
+            {t("Закрыть")}
           </Button>
           <Button id="again" onClick={onAgain}>
             <RotateCcw />
-            Ещё раз
+            {t("Ещё раз")}
           </Button>
         </DialogFooter>
       </DialogContent>

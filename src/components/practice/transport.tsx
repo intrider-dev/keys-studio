@@ -1,3 +1,4 @@
+import { t } from "@/lib/i18n";
 import { RotateCcw, Headphones, Square } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { PlaybackIcon } from "./playback-icon";
@@ -41,17 +42,19 @@ export function Transport({
         <div className="space-y-2.5">
           <div className="flex justify-between text-xs tabular-nums text-muted-foreground">
             <span id="position">
-              Такт <span className="text-foreground">{position}</span> /{" "}
-              {s.settings.lastBar}
+              {t("Такт ")}
+              <span className="text-foreground">{t(position)}</span> /{t(" ")}
+              {t(s.settings.lastBar)}
             </span>
             <span>
-              {formatTime(((beat - s.start) * 60) / s.settings.bpm)} /{" "}
-              {formatTime(((s.end - s.start) * 60) / s.settings.bpm)}
+              {t(formatTime(((beat - s.start) * 60) / s.settings.bpm))} /
+              {t(" ")}
+              {t(formatTime(((s.end - s.start) * 60) / s.settings.bpm))}
             </span>
           </div>
           <Progress
             value={progress}
-            aria-label="Прогресс произведения"
+            aria-label={t("Прогресс произведения")}
             className="h-1.5"
           />
         </div>
@@ -64,11 +67,8 @@ export function Transport({
               disabled={s.loading || !s.song.notes.length}
               onClick={() => void session.toggle()}
             >
-              <PlaybackIcon
-                loading={s.loading}
-                running={s.running}
-              />
-              {label}
+              <PlaybackIcon loading={s.loading} running={s.running} />
+              {t(label)}
             </Button>
             <Tooltip>
               <TooltipTrigger asChild>
@@ -77,34 +77,37 @@ export function Transport({
                   variant="outline"
                   size="icon"
                   className="size-10"
-                  aria-label="Начать заново"
+                  aria-label={t("Начать заново")}
                   onClick={() => session.reset()}
                 >
                   <RotateCcw />
                 </Button>
               </TooltipTrigger>
-              <TooltipContent>Начать попытку заново</TooltipContent>
+              <TooltipContent>{t("Начать попытку заново")}</TooltipContent>
             </Tooltip>
             <Button
               id="demo"
               variant="ghost"
               disabled={s.loading || !s.song.notes.length}
-              onClick={() => s.preview ? session.reset() : void session.demo()}
+              onClick={() =>
+                s.preview ? session.reset() : void session.demo()
+              }
             >
-              {s.preview ? <Square /> : <Headphones />}
+              {t(s.preview ? <Square /> : <Headphones />)}
               <span className="hidden sm:inline">
-                {s.preview ? "Стоп" : "Послушать"}
+                {t(s.preview ? "Стоп" : "Послушать")}
               </span>
               <span className="sr-only sm:hidden">
-                {s.preview ? "Стоп" : "Послушать"}
+                {t(s.preview ? "Стоп" : "Послушать")}
               </span>
             </Button>
           </div>
           <span className="hidden text-xs text-muted-foreground md:inline">
             <kbd className="mr-1 rounded border bg-muted px-1.5 py-0.5 font-sans text-[10px]">
-              Пробел
-            </kbd>{" "}
-            пауза
+              {t("Пробел")}
+            </kbd>
+            {t(" ")}
+            {t("пауза")}
           </span>
         </div>
       </CardContent>
